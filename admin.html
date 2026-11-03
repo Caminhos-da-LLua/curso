@@ -4,19 +4,21 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="color-scheme" content="light dark">
-<meta name="robots" content="noindex, nofollow">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com data:; img-src 'self' data: https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com wss://*.googleapis.com https://*.firebaseapp.com https://*.firebaseio.com https://www.gstatic.com https://accounts.google.com https://apis.google.com; frame-src https://*.firebaseapp.com https://accounts.google.com; object-src 'none'; base-uri 'none'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Admin · Caminhos da Lua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
-<link rel="preconnect" href="https://apis.google.com" crossorigin>
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js">
 <link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"></noscript>
 <style>
+  /* ============ Cores e tema ============ */
   :root{
     --bg:#f4f3f9; --card:#ffffff; --line:#e7e5f1; --hover:#f8f7fd;
     --ink:#1a1833; --mute:#6a6985;
@@ -41,6 +43,7 @@
     }
   }
 
+  /* ============ Base ============ */
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none!important}
   html{-webkit-text-size-adjust:100%}
@@ -50,12 +53,13 @@
   h1{font-size:clamp(24px,3.2vw,30px);font-weight:800;letter-spacing:-.025em;line-height:1.15}
   h2{font-size:16px;font-weight:700;letter-spacing:-.01em}
   small{font-size:12.5px}
-  .sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
   .ic{width:20px;height:20px;flex:none;fill:none;stroke:currentColor;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
   .ic.fill{fill:currentColor;stroke:none}
-  :focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+  .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:14px;
+      background:hsl(var(--h,262) var(--av-s) var(--av-l));color:hsl(var(--h,262) 60% var(--av-fl))}
 
-  /* ---------- Botões ---------- */
+  /* ============ Botões ============ */
   .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 18px;border-radius:10px;
        border:1px solid var(--line);background:var(--card);color:var(--ink);font-weight:600;font-size:14.5px;cursor:pointer;
        transition:background .15s,border-color .15s,transform .1s,color .15s;white-space:nowrap}
@@ -69,15 +73,11 @@
   .btn.red{color:var(--danger);border-color:transparent;background:transparent}
   .btn.red:hover{background:var(--danger-soft)}
   .btn.sm{min-height:36px;padding:0 12px;font-size:13.5px}
-  .full{width:100%}
+  .btn.full{width:100%}
   .icon-btn{appearance:none;display:grid;place-items:center;width:40px;height:40px;border:0;border-radius:10px;background:transparent;color:var(--mute);cursor:pointer;transition:background .15s,color .15s}
   .icon-btn:hover{background:var(--hover);color:var(--ink)}
 
-  /* ---------- Avatares ---------- */
-  .av{width:38px;height:38px;border-radius:50%;display:grid;place-items:center;flex:none;font-weight:700;font-size:14px;
-      background:hsl(var(--h,262) var(--av-s) var(--av-l));color:hsl(var(--h,262) 60% var(--av-fl))}
-
-  /* ---------- Login ---------- */
+  /* ============ Login ============ */
   .login{position:relative;min-height:100vh;min-height:100dvh;display:grid;place-items:center;padding:24px;background:var(--night);overflow:hidden}
   .login::before{content:"";position:absolute;top:0;left:0;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.75;
     box-shadow:8vw 12vh 0 #fff,22vw 6vh 0 #ffffffaa,35vw 18vh 0 #ffffff88,48vw 8vh 0 #fff,63vw 15vh 0 #ffffffaa,78vw 7vh 0 #fff,91vw 20vh 0 #ffffff88,
@@ -87,45 +87,43 @@
               background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.12);color:var(--night-ink);backdrop-filter:blur(6px)}
   .moon-badge{width:64px;height:64px;border-radius:50%;display:grid;place-items:center;background:var(--night-2);color:var(--moon);box-shadow:0 0 0 6px rgba(201,188,255,.1)}
   .moon-badge .ic{width:30px;height:30px}
-  .login-card p{color:var(--night-mute);font-size:14.5px;margin-top:4px}
+  .login-card small{color:var(--night-mute)}
+  .login-card .lerr{min-height:20px;color:#ff8da1;font-size:14px;margin:0}
   .gbtn{appearance:none;width:100%;min-height:48px;display:inline-flex;align-items:center;justify-content:center;gap:10px;border:0;border-radius:12px;
         background:#fff;color:#1a1833;font-weight:700;font-size:15px;cursor:pointer;transition:background .15s,transform .1s}
   .gbtn:hover{background:#eeedf6}
   .gbtn:active{transform:scale(.98)}
   .gbtn:disabled{opacity:.75;cursor:progress;transform:none}
   .gbtn svg{width:20px;height:20px}
-  .lerr{min-height:20px;color:#ff8da1!important;font-size:14px!important;margin:0!important}
-  .login-card small{color:var(--night-mute)}
 
-  /* ---------- Estrutura do app ---------- */
-  .brand{display:flex;align-items:center;gap:11px;min-width:0}
-  .brand .logo{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
-  .brand b{display:block;font-weight:800;letter-spacing:-.01em;line-height:1.2}
-  .brand small{display:block;color:var(--mute);font-weight:500}
-
+  /* ============ Estrutura (celular primeiro; computador amplia) ============ */
   .side{display:none}
   .mtop{position:sticky;top:0;z-index:30;background:var(--card);border-bottom:1px solid var(--line);padding:env(safe-area-inset-top) max(16px,env(safe-area-inset-right)) 0 max(16px,env(safe-area-inset-left))}
   .mtop-in{height:58px;display:flex;align-items:center;justify-content:space-between;gap:12px}
   .mtop-r{display:flex;align-items:center;gap:4px}
   .mtop .av{width:34px;height:34px;background:var(--accent-soft);color:var(--accent)}
-
   .bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:4px;
         padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
   .bn{appearance:none;border:0;background:none;display:grid;justify-items:center;gap:3px;padding:4px 0;min-height:54px;font-size:12px;font-weight:600;color:var(--mute);cursor:pointer}
   .bn .pill{width:56px;height:30px;border-radius:999px;display:grid;place-items:center;transition:background .2s,color .2s}
   .bn.on{color:var(--accent)}
   .bn.on .pill{background:var(--accent-soft)}
+  .brand{display:flex;align-items:center;gap:11px;min-width:0}
+  .brand .logo{width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:var(--accent-soft);color:var(--accent);flex:none}
+  .brand b{display:block;font-weight:800;letter-spacing:-.01em;line-height:1.2}
+  .brand small{display:block;color:var(--mute);font-weight:500}
 
   .main{width:100%;max-width:1120px;margin:0 auto;padding:22px max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
   .page-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
-  .page-h{margin-bottom:20px;display:grid;gap:6px}
+  .page-h{display:grid;gap:6px;margin-bottom:20px}
   .page-top .page-h{margin:0}
   .page-h p{color:var(--mute)}
   .grid2{display:grid;gap:18px;align-items:start}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);min-width:0}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:16px;box-shadow:var(--shadow);min-width:0}
   .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
   .card .sub{color:var(--mute);font-size:14px;margin:0 0 16px}
   .badge{background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:700;padding:3px 11px;border-radius:999px;font-variant-numeric:tabular-nums}
+  .sticky{position:static}
 
   @media (min-width:900px){
     .shell{display:grid;grid-template-columns:268px minmax(0,1fr)}
@@ -154,45 +152,44 @@
     .sticky{position:sticky;top:24px}
   }
 
-  /* ---------- Campos ---------- */
+  /* ============ Campos ============ */
+  .field{margin-bottom:16px}
   label.lb{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
   input[type=text],input[type=search]{width:100%;min-height:46px;padding:0 14px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);-webkit-user-select:text;user-select:text;appearance:none}
   input::placeholder{color:var(--mute);opacity:.7}
   input[type=text]:focus,input[type=search]:focus,.chipbox:focus-within,.drop:focus-within{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
-  .field{margin-bottom:16px}
-
   .chipbox{display:flex;flex-wrap:wrap;gap:6px;padding:8px;min-height:50px;border-radius:10px;border:1px solid var(--line);background:var(--card);margin-bottom:12px;cursor:text}
   .chip{display:inline-flex;align-items:center;gap:4px;max-width:100%;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 4px 3px 12px;font-size:14px;font-weight:600}
   .chip span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .chip button{border:0;background:transparent;color:inherit;width:24px;height:24px;border-radius:50%;cursor:pointer;font-size:17px;line-height:1;flex:none}
   .chip button:hover{background:rgba(91,63,209,.18)}
   .chipbox input{flex:1;min-width:170px;min-height:34px;border:0;background:transparent;padding:0 6px;outline:none!important}
-
   .search{position:relative;margin-top:14px}
   .search .ic{position:absolute;left:13px;top:50%;transform:translateY(-50%);width:18px;height:18px;color:var(--mute);pointer-events:none}
   .search input{padding-left:40px}
 
-  /* ---------- Listas ---------- */
+  /* ============ Listas ============ */
   .selbar{position:sticky;top:12px;z-index:5;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-top:12px;padding:6px 6px 6px 14px;border-radius:12px;
           background:var(--accent-soft);color:var(--accent);font-weight:700;font-size:14px;box-shadow:0 6px 16px rgba(22,20,46,.1)}
   .selbar .btn{border-color:transparent;background:transparent}
   .selbar .btn:hover{background:rgba(91,63,209,.12)}
   .selbar .btn.red:hover{background:var(--danger-soft)}
+  .selbar-acts{display:flex;gap:2px}
   .selall{display:flex;align-items:center;gap:10px;font-size:14px;font-weight:500;color:var(--mute);cursor:pointer;padding:14px 4px 10px;user-select:none}
   .selall input,.row input[type=checkbox]{width:19px;height:19px;accent-color:var(--accent);flex:none;cursor:pointer;margin:0}
   .list{border-top:1px solid var(--line)}
-  .row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);cursor:pointer;transition:background .12s}
+  .row{display:flex;align-items:center;gap:12px;padding:10px 4px;border-bottom:1px solid var(--line);transition:background .12s}
   .row:last-child{border-bottom:0}
   .row:hover{background:var(--hover)}
   .row.sel{background:var(--accent-soft)}
-  #docs .row{cursor:default}
-  #docs .row:hover{background:transparent}
+  .row.static{cursor:default}
+  .row.static:hover{background:transparent}
   .tx{flex:1;min-width:0}
   .t1{display:block;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .t2{display:block;font-size:12.5px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .fi{width:38px;height:38px;border-radius:10px;display:grid;place-items:center;flex:none;background:var(--accent-soft);color:var(--accent)}
-  .rm .lbl{display:inline}
-
+  .tag{flex:none;font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
+  .grp{display:flex;justify-content:space-between;margin:16px 0 4px;font-size:13px;font-weight:700;color:var(--mute)}
   .empty{display:grid;justify-items:center;gap:4px;text-align:center;padding:34px 12px;color:var(--mute)}
   .empty .ic{width:44px;height:44px;padding:11px;border-radius:50%;background:var(--accent-soft);color:var(--accent);margin-bottom:8px}
   .empty b{color:var(--ink);font-weight:700}
@@ -201,9 +198,8 @@
   .skel:nth-child(2){animation-delay:.15s}.skel:nth-child(3){animation-delay:.3s}
   @keyframes pulse{50%{opacity:.45}}
 
-  /* ---------- Upload ---------- */
-  .drop{display:grid;gap:2px;justify-items:center;text-align:center;border:2px dashed var(--line);border-radius:14px;padding:28px 14px;cursor:pointer;margin-bottom:16px;color:var(--mute);transition:border-color .15s,background .15s}
-  .drop{position:relative}
+  /* ============ Upload ============ */
+  .drop{position:relative;display:grid;gap:2px;justify-items:center;text-align:center;border:2px dashed var(--line);border-radius:14px;padding:28px 14px;cursor:pointer;margin-bottom:16px;color:var(--mute);transition:border-color .15s,background .15s}
   .drop input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
   .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
   .drop.has{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
@@ -214,16 +210,17 @@
   progress::-webkit-progress-value{background:var(--accent);transition:width .2s}
   progress::-moz-progress-bar{background:var(--accent)}
   .msg{min-height:20px;margin:12px 0 0;font-size:14px;color:var(--mute)}
-  .msg.err{color:var(--danger)}.msg.ok{color:var(--ok)}
-
+  .msg.err{color:var(--danger)}
+  .msg.ok{color:var(--ok)}
   .meter{margin:2px 0 14px;padding:14px;border-radius:12px;background:var(--hover);border:1px solid var(--line)}
   .meter-top{display:flex;justify-content:space-between;gap:10px;font-size:13.5px;color:var(--mute);margin-bottom:8px}
   .meter-top b{color:var(--ink);font-weight:700;font-variant-numeric:tabular-nums}
   .bar{height:8px;border-radius:999px;background:var(--line);overflow:hidden}
   .bar i{display:block;height:100%;width:0;border-radius:inherit;background:var(--accent);transition:width .4s}
-  .bar i.warn{background:var(--warn)}.bar i.bad{background:var(--danger)}
+  .bar i.warn{background:var(--warn)}
+  .bar i.bad{background:var(--danger)}
 
-  /* ---------- Aviso (toast) e diálogo ---------- */
+  /* ============ Aviso e diálogos ============ */
   #toast{position:fixed;left:50%;bottom:calc(28px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;
          background:var(--night);color:#fff;padding:12px 18px;border-radius:12px;font-size:14.5px;font-weight:600;transition:opacity .25s,transform .25s;z-index:60;
          width:max-content;max-width:calc(100vw - 32px);box-shadow:0 10px 28px rgba(0,0,0,.28)}
@@ -240,41 +237,32 @@
   .dlg-ic.soft{background:var(--accent-soft);color:var(--accent)}
   .dlg-in p{color:var(--mute);font-size:14.5px;word-break:break-word}
   .dlg-act{display:flex;justify-content:flex-end;gap:10px;margin-top:18px}
+  body:has(dialog[open]){overflow:hidden}
 
-  /* ---------- Popup: acessos ---------- */
   #dlgAcc{width:min(520px,calc(100vw - 32px))}
   #dlgAcc[open]{display:flex;flex-direction:column;max-height:min(660px,calc(100dvh - 48px))}
   .acc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 20px 0}
   .acc-h div{display:grid;gap:2px}
   .acc-h p{color:var(--mute);font-size:14px}
   .acc-body{flex:1;min-height:140px;overflow:auto;padding:0 20px calc(18px + env(safe-area-inset-bottom))}
-  .acc-body .row{cursor:default}
-  .acc-body .row:hover{background:transparent}
-  .grp{display:flex;justify-content:space-between;margin:16px 0 4px;font-size:13px;font-weight:700;color:var(--mute)}
-  .tag{flex:none;font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
-  .acc-foot{display:flex;justify-content:flex-end;padding:14px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
   #dlgAcc .search{margin:14px 20px 0}
 
-  body:has(dialog[open]){overflow:hidden}
+  @media (max-width:640px){
+    .card{padding:16px}
+    input[type=text],input[type=search],.chipbox input{font-size:16px}
+    .selbar{top:calc(env(safe-area-inset-top) + 66px)}
+    .row{padding:8px 2px}
+    .rm{width:40px;padding:0}
+    .rm .lbl{display:none}
+  }
   @media (max-width:599px){
+    .page-top .btn{width:100%}
     #dlgAcc{width:100%;max-width:none;margin:auto 0 0;border-radius:20px 20px 0 0}
     #dlgAcc[open]{max-height:88dvh}
     .acc-h{padding:18px 16px 0}
     #dlgAcc .search{margin:12px 16px 0}
     .acc-body{padding:0 16px calc(20px + env(safe-area-inset-bottom))}
     .acc-body .row{padding:12px 0}
-    .page-top .btn{width:100%}
-  }
-
-  @media (max-width:640px){
-    .rm{width:40px;padding:0}
-    .rm .lbl{display:none}
-    .card{padding:16px}
-    input[type=text],input[type=search],.chipbox input{font-size:16px}
-    .selbar{top:calc(env(safe-area-inset-top) + 66px)}
-    .row{padding:8px 2px}
-  }
-  @media (max-width:599px){
     dialog{margin:auto 0 0;width:100%;max-width:none;border-radius:20px 20px 0 0}
     .dlg-in{padding-bottom:calc(20px + env(safe-area-inset-bottom))}
     .dlg-act{flex-direction:column-reverse}
@@ -285,6 +273,7 @@
 </head>
 <body>
 
+<!-- Ícones (SVG reutilizável) -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <symbol id="moon" viewBox="0 0 24 24"><path d="M15.5 2.5a9.5 9.5 0 1 0 6 16.9A8 8 0 0 1 15.5 2.5z"/></symbol>
   <symbol id="users" viewBox="0 0 24 24"><path d="M16 20v-1.5a4 4 0 0 0-4-4H7a4 4 0 0 0-4 4V20"/><circle cx="9.5" cy="7.5" r="3.5"/><path d="M21 20v-1.5a4 4 0 0 0-3-3.87"/><path d="M15.5 4.13a3.5 3.5 0 0 1 0 6.74"/></symbol>
@@ -302,9 +291,9 @@
 <div id="login" class="login">
   <div class="login-card">
     <span class="moon-badge"><svg class="ic fill" aria-hidden="true"><use href="#moon"/></svg></span>
-    <div><h1>Painel admin</h1><p>Caminhos da Lua</p></div>
+    <div><h1>Painel admin</h1><p style="color:var(--night-mute);font-size:14.5px;margin-top:4px">Caminhos da Lua</p></div>
     <button class="gbtn" id="btnLogin" type="button">
-      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
+      <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.930-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
       <span id="loginTxt">Entrar com Google</span>
     </button>
     <p id="msg" class="lerr" role="alert"></p>
@@ -312,7 +301,7 @@
   </div>
 </div>
 
-<!-- ===== App ===== -->
+<!-- ===== Aplicativo ===== -->
 <div id="app" class="shell" hidden>
 
   <!-- Menu lateral (computador) -->
@@ -347,7 +336,7 @@
   </header>
 
   <main class="main">
-    <!-- ===== Inscritos ===== -->
+    <!-- ----- Inscritos ----- -->
     <section id="tab-people">
       <div class="page-top">
         <div class="page-h"><h1>Inscritos</h1><p>Libere ou remova o acesso ao conteúdo pelo e-mail Google.</p></div>
@@ -357,7 +346,9 @@
         <section class="card sticky">
           <div class="card-h"><h2>Liberar acesso</h2></div>
           <p class="sub">Digite o e-mail e aperte Enter. Você pode colar vários de uma vez.</p>
-          <div class="chipbox" id="chipbox"><input type="text" id="emailIn" placeholder="nome@gmail.com" aria-label="E-mail do inscrito" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div>
+          <div class="chipbox" id="chipbox">
+            <input type="text" id="emailIn" placeholder="nome@gmail.com" aria-label="E-mail do inscrito" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done">
+          </div>
           <button class="btn primary full" id="btnAdd" type="button" disabled>Liberar acesso</button>
         </section>
 
@@ -366,7 +357,7 @@
           <div class="search"><svg class="ic" aria-hidden="true"><use href="#search"/></svg><input type="search" id="filter" placeholder="Buscar e-mail" aria-label="Buscar e-mail" autocomplete="off"></div>
           <div class="selbar" id="selbar" hidden>
             <span id="selTxt"></span>
-            <span style="display:flex;gap:2px"><button class="btn sm" id="btnNone" type="button">Cancelar</button><button class="btn sm red" id="btnDelSel" type="button">Remover</button></span>
+            <span class="selbar-acts"><button class="btn sm" id="btnNone" type="button">Cancelar</button><button class="btn sm red" id="btnDelSel" type="button">Remover</button></span>
           </div>
           <label class="selall"><input type="checkbox" id="selAll"> Selecionar todos</label>
           <div class="list" id="emails"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
@@ -374,7 +365,7 @@
       </div>
     </section>
 
-    <!-- ===== PDFs ===== -->
+    <!-- ----- PDFs ----- -->
     <section id="tab-pdfs" hidden>
       <div class="page-h"><h1>PDFs</h1><p>Envie os conteúdos que os inscritos vão ver.</p></div>
       <div class="grid2">
@@ -414,7 +405,7 @@
 
 <div id="toast" role="status" aria-live="polite"></div>
 
-<!-- Popup: todo mundo que tem acesso -->
+<!-- Popup: todo mundo que pode entrar no site -->
 <dialog id="dlgAcc" aria-labelledby="accTitle">
   <div class="acc-h">
     <div><h2 id="accTitle">Acessos</h2><p id="accSub"></p></div>
@@ -438,32 +429,32 @@
 </dialog>
 
 <script>
-// Entrada instantânea: se esta pessoa já entrou neste aparelho, mostra o painel na hora.
-// É só visual; a conferência de verdade e o acesso aos dados continuam no Firebase.
+// Anti-iframe: se o painel estiver dentro de outra página, esconde o conteúdo.
+if (window.top !== window.self) { document.documentElement.style.display = "none"; try { window.top.location = window.self.location; } catch (e) {} }
+
+// Mostra o painel na hora para quem já entrou neste aparelho (só visual; a permissão real é checada pelo Firebase).
 (function () {
   try {
-    var h = JSON.parse(localStorage.getItem("lua_adm") || "null");
-    if (!h || !h.e) return;
+    var cached = JSON.parse(localStorage.getItem("lua_adm") || "null");
+    if (!cached || !cached.e) return;
     document.getElementById("login").hidden = true;
     document.getElementById("app").hidden = false;
-    document.getElementById("who").textContent = h.e;
-    document.querySelectorAll("[data-me]").forEach(function (m) { m.textContent = h.e[0].toUpperCase(); m.title = h.e; });
-    if (location.hash === "#pdfs") {
-      document.getElementById("tab-people").hidden = true;
-      document.getElementById("tab-pdfs").hidden = false;
-      document.querySelectorAll("[data-tab]").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === "pdfs"); });
-    }
+    document.getElementById("who").textContent = cached.e;
+    document.querySelectorAll("[data-me]").forEach(function (m) { m.textContent = cached.e[0].toUpperCase(); m.title = cached.e; });
   } catch (e) {}
 })();
 </script>
+
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy, serverTimestamp, writeBatch, Bytes }
+import { getFirestore, doc, getDoc, setDoc, deleteDoc, collection, getDocs, query, orderBy, serverTimestamp, writeBatch, Bytes }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
-// ====== Configuração do projeto Firebase ======
+/* =====================================================================
+   CONFIGURAÇÃO
+   ===================================================================== */
 const firebaseConfig = {
   apiKey: "AIzaSyDCdIuPFXZt7pLPm-2q1YUisuJgIOe7VzQ",
   authDomain: "caminhosdallua-7c5b3.firebaseapp.com",
@@ -472,211 +463,366 @@ const firebaseConfig = {
   messagingSenderId: "252335527126",
   appId: "1:252335527126:web:5e021984127562d79ca577"
 };
-// Mesma lista das regras (firestore.rules)
-const ADMINS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
 
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app), db = getFirestore(app);
-const $ = id => document.getElementById(id);
+const LIMITS = {
+  maxUploadMB: 100,        // tamanho máximo de cada PDF
+  freeMB: 1000,            // limite gratuito de armazenamento (aviso perto disso)
+  chunkBytes: 500000,      // cada PDF é guardado em pedaços de ~0,5 MB
+  chunksPerWrite: 2,       // pedaços por envio (evita estourar o limite de cada requisição)
+  batchSize: 400,          // operações por lote de escrita
+  idleMs: 60 * 60 * 1000   // sai sozinho após 60 min sem uso
+};
+const MB = 1048576;
 const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/;
 
-// ---------- Utilidades de interface ----------
-let toastT;
-function toast(t, bad) {
-  const e = $("toast"); e.textContent = t; e.className = "show" + (bad ? " bad" : "");
-  clearTimeout(toastT); toastT = setTimeout(() => e.className = "", 3200);
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app);
+const db = getFirestore(app);
+
+/* =====================================================================
+   UTILITÁRIOS
+   ===================================================================== */
+const $ = id => document.getElementById(id);
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const hue = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
+const fmtMB = b => (b / MB).toFixed(1) + " MB";
+const chunkId = i => String(i).padStart(6, "0");
+const fmtDate = ts => {
+  try {
+    const d = ts && ts.toDate && ts.toDate();
+    return d ? d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).replace(/\./g, "") : "";
+  } catch { return ""; }
+};
+
+// Cria elemento: el("span", { class: "x", text: "oi" }, [filhos])
+function el(tag, attrs = {}, children = []) {
+  const node = document.createElement(tag);
+  for (const [k, v] of Object.entries(attrs)) {
+    if (k === "class") node.className = v;
+    else if (k === "text") node.textContent = v;
+    else if (k === "html") node.innerHTML = v;
+    else node.setAttribute(k, v);
+  }
+  [].concat(children).forEach(c => node.append(c));
+  return node;
+}
+// Ícone (nomes fixos definidos no SVG do topo)
+const icon = (name) => `<svg class="ic" aria-hidden="true"><use href="#${name}"/></svg>`;
+
+function removeButton(label, aria) {
+  return el("button", { type: "button", class: "btn sm red rm", "aria-label": aria,
+    html: icon("trash") + `<span class="lbl">${label}</span>` });
 }
 
-// Qualquer erro inesperado aparece na tela (nada falha em silêncio)
+function emptyBox(box, iconName, title, text) {
+  box.innerHTML = "";
+  box.append(el("div", { class: "empty" }, [
+    el("span", { html: icon(iconName) }),
+    el("b", { text: title }),
+    el("span", { text: text })
+  ]));
+}
+
+// Executa escritas em lotes de até LIMITS.batchSize operações
+async function writeInBatches(items, apply) {
+  for (let i = 0; i < items.length; i += LIMITS.batchSize) {
+    const batch = writeBatch(db);
+    items.slice(i, i + LIMITS.batchSize).forEach(item => apply(batch, item));
+    await batch.commit();
+  }
+}
+
+// Tenta de novo quando a rede falha (não repete erros de permissão ou de dados)
+const NO_RETRY = ["permission-denied", "unauthenticated", "invalid-argument", "resource-exhausted"];
+async function withRetry(fn, tries = 4) {
+  let last;
+  for (let t = 0; t < tries; t++) {
+    try { return await fn(); }
+    catch (e) {
+      last = e;
+      if (NO_RETRY.includes(e.code)) throw e;
+      await sleep(800 * (t + 1));
+    }
+  }
+  throw last;
+}
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) =>
+  setTimeout(() => no(Object.assign(new Error("timeout"), { code: "timeout" })), ms))]);
+
+/* =====================================================================
+   INTERFACE: avisos e confirmação
+   ===================================================================== */
+let toastT;
+function toast(text, bad = false) {
+  const e = $("toast");
+  e.textContent = text;
+  e.className = "show" + (bad ? " bad" : "");
+  clearTimeout(toastT);
+  toastT = setTimeout(() => e.className = "", 3200);
+}
+
+// Erros inesperados aparecem na tela (nada falha em silêncio)
 addEventListener("error", e => { if (e.message && !/ResizeObserver|^Script error/.test(e.message)) toast("Erro: " + e.message, true); });
 addEventListener("unhandledrejection", e => toast("Erro: " + ((e.reason && (e.reason.code || e.reason.message)) || "inesperado"), true));
 
-// Confirmação em diálogo (no lugar do confirm() do navegador)
 const dlg = $("dlg");
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close("cancel"); });
 function ask({ title, text, ok = "Confirmar", danger = true }) {
-  if (typeof dlg.showModal !== "function") return Promise.resolve(confirm(title + "\n" + text));
   $("dlgTitle").textContent = title;
   $("dlgText").textContent = text;
-  const b = $("dlgOk"); b.textContent = ok; b.className = "btn " + (danger ? "danger" : "primary");
+  const btn = $("dlgOk");
+  btn.textContent = ok;
+  btn.className = "btn " + (danger ? "danger" : "primary");
   $("dlgIc").className = "dlg-ic" + (danger ? "" : " soft");
-  return new Promise(res => {
+  return new Promise(resolve => {
     dlg.returnValue = "";
-    dlg.addEventListener("close", () => res(dlg.returnValue === "ok"), { once: true });
+    dlg.addEventListener("close", () => resolve(dlg.returnValue === "ok"), { once: true });
     dlg.showModal();
   });
 }
 
-function emptyBox(box, icon, title, text) {
-  box.innerHTML = "";
-  const w = document.createElement("div"); w.className = "empty";
-  w.innerHTML = `<svg class="ic" aria-hidden="true"><use href="#${icon}"/></svg>`;
-  const b = document.createElement("b"); b.textContent = title;
-  const s = document.createElement("span"); s.textContent = text;
-  w.append(b, s); box.appendChild(w);
+const dlgAcc = $("dlgAcc");
+dlgAcc.addEventListener("click", e => { if (e.target === dlgAcc) dlgAcc.close(); });
+
+/* =====================================================================
+   LOGIN E SESSÃO
+   ===================================================================== */
+const IDLE = { timer: 0, signedIn: false };
+function bumpIdle() {
+  if (!IDLE.signedIn) return;
+  clearTimeout(IDLE.timer);
+  IDLE.timer = setTimeout(() => signOut(auth), LIMITS.idleMs);
 }
-function rmBtn(label, aria) {
-  const b = document.createElement("button"); b.type = "button"; b.className = "btn sm red rm";
-  b.setAttribute("aria-label", aria);
-  b.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#trash"/></svg><span class="lbl"></span>';
-  b.querySelector(".lbl").textContent = label;
-  return b;
-}
-const hue = s => { let h = 0; for (const c of s) h = (h * 31 + c.charCodeAt(0)) % 360; return h; };
-const fmtDate = ts => {
-  try { const d = ts && ts.toDate && ts.toDate(); return d ? d.toLocaleDateString("pt-BR", { day: "2-digit", month: "short", year: "numeric" }).replace(/\./g, "") : ""; }
-  catch { return ""; }
+["pointerdown", "keydown", "scroll"].forEach(ev => addEventListener(ev, bumpIdle, { passive: true }));
+
+const rememberAdmin = email => {
+  try { email ? localStorage.setItem("lua_adm", JSON.stringify({ e: email })) : localStorage.removeItem("lua_adm"); } catch (e) {}
 };
 
-// ---------- Login ----------
-const loginBusy = on => { $("btnLogin").disabled = on; $("loginTxt").textContent = on ? "Entrando…" : "Entrar com Google"; };
+// Admin = existe o documento admins/{email} no Firestore (as regras usam a mesma lista)
+async function isAdmin(email) {
+  try { return (await getDoc(doc(db, "admins", email))).exists(); }
+  catch { return false; }   // sem permissão = não é admin
+}
+
+function showLogin() {
+  IDLE.signedIn = false;
+  rememberAdmin(null);
+  $("app").hidden = true;
+  $("login").hidden = false;
+}
+function showApp(email) {
+  IDLE.signedIn = true;
+  $("login").hidden = true;
+  $("app").hidden = false;
+  $("who").textContent = email;
+  document.querySelectorAll("[data-me]").forEach(n => { n.textContent = email[0].toUpperCase(); n.title = email; });
+}
+
 $("btnLogin").onclick = () => {
-  $("msg").textContent = ""; loginBusy(true);
+  $("msg").textContent = "";
+  $("btnLogin").disabled = true; $("loginTxt").textContent = "Entrando…";
   signInWithPopup(auth, new GoogleAuthProvider())
     .catch(e => { if (!String(e.code).includes("popup")) $("msg").textContent = "Não foi possível entrar."; })
-    .finally(() => loginBusy(false));
+    .finally(() => { $("btnLogin").disabled = false; $("loginTxt").textContent = "Entrar com Google"; });
 };
-const rememberAdmin = email => { try { email ? localStorage.setItem("lua_adm", JSON.stringify({ e: email })) : localStorage.removeItem("lua_adm"); } catch (e) {} };
 document.querySelectorAll("[data-out]").forEach(b => b.onclick = () => signOut(auth));
 
 onAuthStateChanged(auth, async user => {
-  if (!user) { rememberAdmin(null); $("app").hidden = true; $("login").hidden = false; return; }
+  if (!user) return showLogin();
   const email = (user.email || "").toLowerCase();
-  if (!user.emailVerified || !ADMINS.includes(email)) {
-    rememberAdmin(null); await signOut(auth); $("msg").textContent = "Este e-mail não é administrador."; return;
+  if (!user.emailVerified || !(await isAdmin(email))) {
+    rememberAdmin(null);
+    await signOut(auth);
+    $("msg").textContent = "Este e-mail não é administrador.";
+    return;
   }
   rememberAdmin(email);
-  $("msg").textContent = ""; $("login").hidden = true; $("app").hidden = false;
-  $("who").textContent = email;
-  document.querySelectorAll("[data-me]").forEach(e => { e.textContent = email[0].toUpperCase(); e.title = email; });
-  bumpIdle(); loadEmails(); loadDocs();
+  $("msg").textContent = "";
+  showApp(email);
+  bumpIdle();
+  loadPeople();
+  loadPdfs();
 });
 
-// Sai sozinho após 60 min sem uso
-let idleT;
-const bumpIdle = () => { clearTimeout(idleT); idleT = setTimeout(() => signOut(auth), 60 * 60 * 1000); };
-["pointerdown", "keydown", "scroll"].forEach(ev => addEventListener(ev, bumpIdle, { passive: true }));
-
-// ---------- Abas ----------
-const views = { people: $("tab-people"), pdfs: $("tab-pdfs") };
-function showTab(t, fromUser) {
-  if (!views[t]) t = "people";
-  Object.entries(views).forEach(([k, v]) => v.hidden = k !== t);
+/* =====================================================================
+   ABAS
+   ===================================================================== */
+const TABS = { people: $("tab-people"), pdfs: $("tab-pdfs") };
+function showTab(name, save = false) {
+  const tab = TABS[name] ? name : "people";
+  for (const [key, view] of Object.entries(TABS)) view.hidden = key !== tab;
   document.querySelectorAll("[data-tab]").forEach(b => {
-    const on = b.dataset.tab === t;
+    const on = b.dataset.tab === tab;
     b.classList.toggle("on", on);
-    if (on) b.setAttribute("aria-current", "page"); else b.removeAttribute("aria-current");
+    on ? b.setAttribute("aria-current", "page") : b.removeAttribute("aria-current");
   });
-  if (fromUser) { scrollTo({ top: 0 }); history.replaceState(null, "", "#" + t); }
+  if (save) { scrollTo({ top: 0 }); history.replaceState(null, "", "#" + tab); }
 }
 document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b.dataset.tab, true));
 showTab(location.hash.slice(1));
 
-// =====================================================================
-//  INSCRITOS
-// =====================================================================
-let allEmails = [], chips = [], addedAt = new Map();
-const selected = new Set();
+/* =====================================================================
+   INSCRITOS
+   ===================================================================== */
+// Estado: e-mails liberados (email -> data) e lista de admins
+const state = {
+  allowed: new Map(),   // email -> addedAt
+  admins: [],           // e-mails administradores
+  selected: new Set(),  // selecionados na lista
+  pending: []           // e-mails digitados, ainda não liberados
+};
 
-async function loadEmails() {
-  let snap;
-  try { snap = await getDocs(collection(db, "allowed")); }
-  catch (e) { console.error(e); emptyBox($("emails"), "alert", "Não foi possível carregar a lista", e.code || e.message); return; }
-  allEmails = snap.docs.map(d => d.id).sort();
-  addedAt = new Map(snap.docs.map(d => [d.id, d.data().addedAt]));
-  [...selected].forEach(e => { if (!allEmails.includes(e)) selected.delete(e); });
-  drawEmails();
+const isAdminEmail = e => state.admins.includes(e);
+const totalAccess = () => state.admins.length + [...state.allowed.keys()].filter(e => !isAdminEmail(e)).length;
+const sortedAllowed = () => [...state.allowed.keys()].sort();
+
+async function loadPeople() {
+  let allowedSnap, adminsSnap;
+  try {
+    [allowedSnap, adminsSnap] = await Promise.all([getDocs(collection(db, "allowed")), getDocs(collection(db, "admins"))]);
+  } catch (e) {
+    console.error(e);
+    emptyBox($("emails"), "alert", "Não foi possível carregar a lista", e.code || e.message);
+    return;
+  }
+  state.allowed = new Map(allowedSnap.docs.map(d => [d.id, d.data().addedAt]));
+  state.admins = adminsSnap.docs.map(d => d.id).sort();
+  for (const e of [...state.selected]) if (!state.allowed.has(e)) state.selected.delete(e);
+  drawPeople();
 }
 
-// --- chips (campo de adicionar) ---
-function drawChips() {
-  const box = $("chipbox");
-  box.querySelectorAll(".chip").forEach(c => c.remove());
-  chips.forEach(e => {
-    const c = document.createElement("span"); c.className = "chip";
-    const t = document.createElement("span"); t.textContent = e;
-    const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Tirar " + e + " da lista");
-    x.onclick = () => { chips = chips.filter(y => y !== e); drawChips(); };
-    c.append(t, x); box.insertBefore(c, $("emailIn"));
+// Campo de adicionar (chips)
+const chipbox = $("chipbox");
+const emailIn = $("emailIn");
+
+function drawPending() {
+  chipbox.querySelectorAll(".chip").forEach(c => c.remove());
+  state.pending.forEach(email => {
+    const remove = el("button", { type: "button", "aria-label": `Tirar ${email} da lista`, text: "×" });
+    remove.onclick = () => { state.pending = state.pending.filter(e => e !== email); drawPending(); };
+    chipbox.insertBefore(el("span", { class: "chip" }, [el("span", { text: email }), remove]), emailIn);
   });
-  $("btnAdd").disabled = !chips.length;
-  $("btnAdd").textContent = chips.length > 1 ? `Liberar ${chips.length} acessos` : "Liberar acesso";
+  const n = state.pending.length;
+  $("btnAdd").disabled = !n;
+  $("btnAdd").textContent = n > 1 ? `Liberar ${n} acessos` : "Liberar acesso";
 }
+
 function addTokens(text) {
   const tokens = text.toLowerCase().split(/[\s,;]+/).filter(Boolean);
-  let bad = null;
-  tokens.forEach(t => { if (!EMAIL_RE.test(t)) bad = bad || t; else if (!chips.includes(t)) chips.push(t); });
-  drawChips();
+  const bad = tokens.find(t => !EMAIL_RE.test(t));
+  tokens.filter(t => EMAIL_RE.test(t) && !state.pending.includes(t)).forEach(t => state.pending.push(t));
+  drawPending();
   if (bad) toast("E-mail inválido: " + bad, true);
 }
-$("emailIn").addEventListener("keydown", e => {
-  if (["Enter", ",", ";", " "].includes(e.key)) { e.preventDefault(); addTokens($("emailIn").value); $("emailIn").value = ""; }
-  if (e.key === "Backspace" && !$("emailIn").value && chips.length) { chips.pop(); drawChips(); }
+function flushInput() {
+  if (emailIn.value.trim()) addTokens(emailIn.value);
+  emailIn.value = "";
+}
+
+emailIn.addEventListener("keydown", e => {
+  if (["Enter", ",", ";", " "].includes(e.key)) { e.preventDefault(); flushInput(); }
+  if (e.key === "Backspace" && !emailIn.value && state.pending.length) { state.pending.pop(); drawPending(); }
 });
-$("emailIn").addEventListener("paste", () => setTimeout(() => { addTokens($("emailIn").value); $("emailIn").value = ""; }, 0));
-$("emailIn").addEventListener("blur", () => { if ($("emailIn").value.trim()) { addTokens($("emailIn").value); $("emailIn").value = ""; } });
-$("chipbox").addEventListener("click", () => $("emailIn").focus());
+emailIn.addEventListener("paste", () => setTimeout(flushInput, 0));
+emailIn.addEventListener("blur", flushInput);
+chipbox.addEventListener("click", () => emailIn.focus());
 
 $("btnAdd").onclick = async () => {
-  if ($("emailIn").value.trim()) { addTokens($("emailIn").value); $("emailIn").value = ""; }
-  const novos = chips.filter(e => !allEmails.includes(e));
-  const ja = chips.length - novos.length;
-  if (!novos.length) { toast("Essas pessoas já têm acesso."); chips = []; drawChips(); return; }
-  $("btnAdd").disabled = true; $("btnAdd").textContent = "Liberando…";
+  flushInput();
+  const novos = state.pending.filter(e => !state.allowed.has(e));
+  const ja = state.pending.length - novos.length;
+  if (!novos.length) { toast("Essas pessoas já têm acesso."); state.pending = []; drawPending(); return; }
+
+  $("btnAdd").disabled = true;
+  $("btnAdd").textContent = "Liberando…";
   try {
-    for (let i = 0; i < novos.length; i += 400) {
-      const batch = writeBatch(db);
-      novos.slice(i, i + 400).forEach(e => batch.set(doc(db, "allowed", e), { addedAt: serverTimestamp() }));
-      await batch.commit();
-    }
-    chips = []; drawChips();
+    await writeInBatches(novos, (batch, email) => batch.set(doc(db, "allowed", email), { addedAt: serverTimestamp() }));
+    state.pending = [];
+    drawPending();
     toast(`${novos.length} acesso(s) liberado(s)` + (ja ? ` · ${ja} já tinha(m)` : ""));
-    await loadEmails();
-  } catch (e) { console.error(e); toast("Erro ao salvar: " + (e.code || e.message), true); drawChips(); }
-};
-
-// --- lista de quem tem acesso ---
-const filtered = () => { const q = $("filter").value.trim().toLowerCase(); return allEmails.filter(e => e.includes(q)); };
-function syncSelAll() { const items = filtered(); $("selAll").checked = items.length > 0 && items.every(e => selected.has(e)); }
-
-function drawEmails() {
-  const items = filtered();
-  $("count").textContent = allEmails.length; $("navPeople").textContent = allEmails.length;
-  $("navAcc").textContent = totalAccess(); if (dlgAcc.open) drawAccess();
-  const box = $("emails"); box.innerHTML = "";
-  if (!items.length) {
-    if (allEmails.length) emptyBox(box, "search", "Nenhum resultado", "Tente buscar por outro trecho do e-mail.");
-    else emptyBox(box, "mail", "Ninguém liberado ainda", "Adicione e-mails em “Liberar acesso”.");
+    await loadPeople();
+  } catch (e) {
+    console.error(e);
+    toast("Erro ao salvar: " + (e.code || e.message), true);
+    drawPending();
   }
-  items.forEach(e => {
-    const row = document.createElement("div"); row.className = "row" + (selected.has(e) ? " sel" : "");
-    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = selected.has(e); cb.setAttribute("aria-label", "Selecionar " + e);
-    cb.onchange = () => { cb.checked ? selected.add(e) : selected.delete(e); row.classList.toggle("sel", cb.checked); drawSel(); syncSelAll(); };
-    const av = document.createElement("span"); av.className = "av"; av.textContent = e[0].toUpperCase(); av.style.setProperty("--h", hue(e));
-    const tx = document.createElement("span"); tx.className = "tx";
-    const t1 = document.createElement("span"); t1.className = "t1"; t1.textContent = e; tx.appendChild(t1);
-    const d = fmtDate(addedAt.get(e));
-    if (d) { const t2 = document.createElement("span"); t2.className = "t2"; t2.textContent = "Liberado em " + d; tx.appendChild(t2); }
-    const b = rmBtn("Remover", "Remover o acesso de " + e);
-    b.onclick = () => removeEmails([e]);
-    row.onclick = ev => { if (ev.target.closest("button") || ev.target === cb) return; cb.click(); };
-    row.append(cb, av, tx, b); box.appendChild(row);
-  });
-  syncSelAll(); drawSel();
-}
-function drawSel() {
-  $("selbar").hidden = selected.size === 0;
-  $("selTxt").textContent = selected.size + (selected.size === 1 ? " selecionado" : " selecionados");
-}
-$("filter").oninput = drawEmails;
-$("selAll").onchange = () => {
-  filtered().forEach(e => $("selAll").checked ? selected.add(e) : selected.delete(e));
-  drawEmails();
 };
-$("btnNone").onclick = () => { selected.clear(); drawEmails(); };
-$("btnDelSel").onclick = () => removeEmails([...selected]);
 
-async function removeEmails(list) {
+// Lista de quem tem acesso
+const visibleEmails = () => {
+  const q = $("filter").value.trim().toLowerCase();
+  return sortedAllowed().filter(e => e.includes(q));
+};
+
+// Uma linha de pessoa, usada na lista e no popup de acessos
+function personRow(email, addedAt, { checked = false, onToggle, onRemove, tag } = {}) {
+  const row = el("div", { class: "row" + (checked ? " sel" : "") + (onToggle ? "" : " static") });
+  if (onToggle) {
+    const cb = el("input", { type: "checkbox", "aria-label": "Selecionar " + email });
+    cb.checked = checked;
+    cb.onchange = () => onToggle(cb.checked);
+    row.onclick = ev => {
+      if (ev.target.closest("button") || ev.target === cb) return;
+      cb.checked = !cb.checked;
+      onToggle(cb.checked);
+    };
+    row.append(cb);
+  }
+  const av = el("span", { class: "av", text: email[0].toUpperCase() });
+  av.style.setProperty("--h", hue(email));
+  const txt = el("span", { class: "tx" }, [el("span", { class: "t1", text: email })]);
+  const date = fmtDate(addedAt);
+  if (date) txt.append(el("span", { class: "t2", text: "Liberado em " + date }));
+  row.append(av, txt);
+  if (tag) row.append(el("span", { class: "tag", text: tag }));
+  if (onRemove) {
+    const b = removeButton("Remover", "Remover o acesso de " + email);
+    b.onclick = onRemove;
+    row.append(b);
+  }
+  return row;
+}
+
+function drawPeople() {
+  const list = visibleEmails();
+  $("count").textContent = state.allowed.size;
+  $("navPeople").textContent = state.allowed.size;
+  $("navAcc").textContent = totalAccess();
+  if (dlgAcc.open) drawAccess();
+
+  const box = $("emails");
+  box.innerHTML = "";
+  if (!list.length) {
+    state.allowed.size
+      ? emptyBox(box, "search", "Nenhum resultado", "Tente buscar por outro trecho do e-mail.")
+      : emptyBox(box, "mail", "Ninguém liberado ainda", "Adicione e-mails em “Liberar acesso”.");
+  }
+  list.forEach(email => box.append(personRow(email, state.allowed.get(email), {
+    checked: state.selected.has(email),
+    onToggle: on => { on ? state.selected.add(email) : state.selected.delete(email); drawPeople(); },
+    onRemove: () => removePeople([email])
+  })));
+  syncSelection();
+}
+
+function syncSelection() {
+  const visible = visibleEmails();
+  $("selAll").checked = visible.length > 0 && visible.every(e => state.selected.has(e));
+  $("selbar").hidden = state.selected.size === 0;
+  const n = state.selected.size;
+  $("selTxt").textContent = `${n} ${n === 1 ? "selecionado" : "selecionados"}`;
+}
+
+$("filter").oninput = drawPeople;
+$("selAll").onchange = () => {
+  visibleEmails().forEach(e => $("selAll").checked ? state.selected.add(e) : state.selected.delete(e));
+  drawPeople();
+};
+$("btnNone").onclick = () => { state.selected.clear(); drawPeople(); };
+$("btnDelSel").onclick = () => removePeople([...state.selected]);
+
+async function removePeople(list) {
   if (!list.length) return;
   const one = list.length === 1;
   const ok = await ask({
@@ -686,113 +832,80 @@ async function removeEmails(list) {
   });
   if (!ok) return;
   try {
-    for (let i = 0; i < list.length; i += 400) {
-      const batch = writeBatch(db);
-      list.slice(i, i + 400).forEach(e => batch.delete(doc(db, "allowed", e)));
-      await batch.commit();
-    }
-    list.forEach(e => selected.delete(e));
+    await writeInBatches(list, (batch, email) => batch.delete(doc(db, "allowed", email)));
+    list.forEach(e => state.selected.delete(e));
     toast(one ? "Acesso removido." : "Acessos removidos.");
-    await loadEmails();
-  } catch (e) { console.error(e); toast("Erro ao remover: " + (e.code || e.message), true); }
+    await loadPeople();
+  } catch (e) {
+    console.error(e);
+    toast("Erro ao remover: " + (e.code || e.message), true);
+  }
 }
 
-// =====================================================================
-//  ACESSOS (popup com todo mundo que entra no site)
-// =====================================================================
-const dlgAcc = $("dlgAcc");
-function totalAccess() { return ADMINS.length + allEmails.filter(e => !ADMINS.includes(e)).length; }
+// Popup com todo mundo que pode entrar no site (administradores e inscritos)
 function drawAccess() {
   const q = $("accFilter").value.trim().toLowerCase();
-  const inscritos = allEmails.filter(e => !ADMINS.includes(e));
+  const inscritos = sortedAllowed().filter(e => !isAdminEmail(e));
   const n = totalAccess();
-  $("accSub").textContent = n + (n === 1 ? " pessoa pode entrar no site" : " pessoas podem entrar no site");
-  const box = $("accList"); box.innerHTML = "";
-  const group = (label, list, tag) => {
-    const items = list.filter(e => e.includes(q));
-    if (!items.length) return 0;
-    const h = document.createElement("div"); h.className = "grp";
-    h.innerHTML = "<span></span><span></span>"; h.firstChild.textContent = label; h.lastChild.textContent = items.length;
-    const ul = document.createElement("div"); ul.className = "list";
-    items.forEach(e => {
-      const row = document.createElement("div"); row.className = "row";
-      const av = document.createElement("span"); av.className = "av"; av.textContent = e[0].toUpperCase(); av.style.setProperty("--h", hue(e));
-      const tx = document.createElement("span"); tx.className = "tx";
-      const t1 = document.createElement("span"); t1.className = "t1"; t1.textContent = e; tx.appendChild(t1);
-      const d = fmtDate(addedAt.get(e)); if (d) { const t2 = document.createElement("span"); t2.className = "t2"; t2.textContent = "Liberado em " + d; tx.appendChild(t2); }
-      row.append(av, tx);
-      if (tag) { const g = document.createElement("span"); g.className = "tag"; g.textContent = tag; row.appendChild(g); }
-      ul.appendChild(row);
-    });
-    box.append(h, ul); return items.length;
+  $("accSub").textContent = `${n} ${n === 1 ? "pessoa pode entrar no site" : "pessoas podem entrar no site"}`;
+
+  const box = $("accList");
+  box.innerHTML = "";
+  const section = (label, emails, tag) => {
+    const shown = emails.filter(e => e.includes(q));
+    if (!shown.length) return;
+    box.append(el("div", { class: "grp" }, [el("span", { text: label }), el("span", { text: shown.length })]));
+    const list = el("div", { class: "list" });
+    shown.forEach(e => list.append(personRow(e, state.allowed.get(e), { tag })));
+    box.append(list);
   };
-  const shown = group("Administradores", ADMINS, "Admin") + group("Inscritos", inscritos);
-  if (!shown) emptyBox(box, "search", "Nenhum resultado", "Tente buscar por outro trecho do e-mail.");
+  section("Administradores", state.admins, "Admin");
+  section("Inscritos", inscritos, "");
+  if (!box.children.length) emptyBox(box, "search", "Nenhum resultado", "Tente buscar por outro trecho do e-mail.");
 }
-function openAcc() { $("accFilter").value = ""; drawAccess(); dlgAcc.showModal(); loadEmails(); }
-$("btnAcc").onclick = openAcc;
+$("btnAcc").onclick = () => { $("accFilter").value = ""; drawAccess(); dlgAcc.showModal(); loadPeople(); };
 $("accFilter").oninput = drawAccess;
 $("accClose").onclick = () => dlgAcc.close();
-dlgAcc.addEventListener("click", e => { if (e.target === dlgAcc) dlgAcc.close(); });
 
-// =====================================================================
-//  PDFs (salvos em pedaços no Firestore)
-// =====================================================================
-const MAX_MB = 100, CHUNK = 500000, PER_BATCH = 2, FREE_MB = 1000;
-const chunkId = i => String(i).padStart(6, "0");
-const fmtMB = b => (b / 1048576).toFixed(1) + " MB";
-let usedBytes = 0;
-
+/* =====================================================================
+   PDFs (guardados em pedaços no Firestore)
+   ===================================================================== */
+const pdfState = { list: [], usedBytes: 0, picked: null, autoTitle: "" };
 const DROP_SUB = matchMedia("(pointer:coarse)").matches ? "toque para escolher" : "ou arraste para cá";
-$("dropSub").textContent = DROP_SUB;
-let pickedFile = null, autoTitle = "";
-async function pickFile(f) {
-  if (!f) return;
-  try { await readBlob(f.slice(0, 16)); }
-  catch (e) {
-    pickedFile = null; $("drop").classList.remove("has");
-    return upFail("Não consegui ler este arquivo (" + (e.name || e.message) + "). Se ele está no Drive ou na nuvem, baixe para o aparelho e tente de novo.");
-  }
-  pickedFile = f;                       // guardamos o arquivo aqui (não depende do campo, que no celular é instável)
-  $("dropName").textContent = f.name;
-  $("dropSub").textContent = fmtMB(f.size) + " · toque para trocar";
-  $("drop").classList.add("has");
-  const t = $("title").value.trim();
-  if (!t || t === autoTitle) {
-    autoTitle = f.name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 60);
-    $("title").value = autoTitle;
-  }
-  upMsg("");
+const uploadState = { busy: false };
+
+// Mantém a tela acesa durante o envio
+let wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch (e) {}
 }
-$("pdfFile").onchange = () => pickFile($("pdfFile").files[0]);
-const drop = $("drop");
-["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
-["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
-drop.addEventListener("drop", e => pickFile(e.dataTransfer.files[0]));
+document.addEventListener("visibilitychange", () => { if (uploadState.busy && !document.hidden) keepAwake(true); });
+addEventListener("beforeunload", e => { if (uploadState.busy) { e.preventDefault(); e.returnValue = ""; } });
 
-const errTxt = e => ({
-  "permission-denied": "sem permissão no Firebase (confira as regras de documents e chunks)",
-  "unauthenticated": "sessão expirada, entre de novo",
-  "unavailable": "sem conexão com o Firebase",
-  "resource-exhausted": "limite do Firebase atingido",
-  "timeout": "a conexão travou durante o envio"
-}[e.code] || (typeof e.code === "string" && e.code) || e.message || e.name);
-const upMsg = (t, k) => { const e = $("upMsg"); e.textContent = t || ""; e.className = "msg " + (k || ""); };
-
-async function deleteChunks(id, count) {
-  for (let i = 0; i < count; i += 400) {
-    const batch = writeBatch(db);
-    for (let j = i; j < Math.min(i + 400, count); j++) batch.delete(doc(db, "documents", id, "chunks", chunkId(j)));
-    await batch.commit();
-  }
+function uploadMsg(text, kind = "") {
+  const m = $("upMsg");
+  m.textContent = text || "";
+  m.className = "msg " + kind;
+}
+function uploadError(text) {
+  uploadMsg(text, "err");
+  $("upMsg").scrollIntoView({ block: "center", behavior: "smooth" });
+}
+function setUploading(on) {
+  uploadState.busy = on;
+  keepAwake(on);
+  $("btnUp").disabled = on;
+  $("btnUp").textContent = on ? "Enviando…" : "Enviar PDF";
+  $("prog").hidden = !on;
+  $("prog").value = 0;
 }
 
-// Lê um pedaço do arquivo (com alternativa para navegadores de celular mais antigos)
+// No celular o tipo do arquivo costuma vir vazio, então olhamos o começo do arquivo ("%PDF")
 const readBlob = b => b.arrayBuffer ? b.arrayBuffer()
   : new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => no(r.error); r.readAsArrayBuffer(b); });
-const sleep = ms => new Promise(r => setTimeout(r, ms));
-
-// No celular o tipo do arquivo costuma vir vazio; por isso olhamos o começo do arquivo ("%PDF")
 async function looksPdf(file) {
   try {
     const head = new Uint8Array(await readBlob(file.slice(0, 1024)));
@@ -802,117 +915,178 @@ async function looksPdf(file) {
   }
 }
 
-// Grava um grupo de pedaços; se a rede falhar, tenta de novo (o lote é refeito a cada tentativa)
-async function commitChunks(parentId, items) {
-  let last;
-  for (let t = 0; t < 4; t++) {
-    try {
-      const batch = writeBatch(db);
-      items.forEach(({ j, buf }) => batch.set(doc(db, "documents", parentId, "chunks", chunkId(j)), { n: j, data: Bytes.fromUint8Array(buf) }));
-      await batch.commit();
-      return;
-    } catch (e) {
-      last = e;
-      if (["permission-denied", "unauthenticated", "invalid-argument", "resource-exhausted"].includes(e.code)) throw e;
-      await sleep(800 * (t + 1));
-    }
+function resetPicker() {
+  pdfState.picked = null;
+  pdfState.autoTitle = "";
+  $("pdfFile").value = "";
+  $("title").value = "";
+  $("dropName").textContent = "Escolher arquivo PDF";
+  $("dropSub").textContent = DROP_SUB;
+  $("drop").classList.remove("has");
+}
+
+async function pickFile(file) {
+  if (!file) return;
+  try { await readBlob(file.slice(0, 16)); }
+  catch (e) {
+    resetPicker();
+    return uploadError("Não consegui ler este arquivo (" + (e.name || e.message) + "). Se ele está no Drive ou na nuvem, baixe para o aparelho e tente de novo.");
   }
-  throw last;
+  pdfState.picked = file;
+  $("dropName").textContent = file.name;
+  $("dropSub").textContent = fmtMB(file.size) + " · toque para trocar";
+  $("drop").classList.add("has");
+  const current = $("title").value.trim();
+  if (!current || current === pdfState.autoTitle) {
+    pdfState.autoTitle = file.name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 60);
+    $("title").value = pdfState.autoTitle;
+  }
+  uploadMsg("");
 }
 
-// Mantém a tela do celular acesa e avisa antes de sair da página durante o envio
-let uploading = false, wakeLock = null;
-async function keepAwake(on) {
-  try {
-    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
-    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
-  } catch (e) {}
+$("pdfFile").onchange = () => pickFile($("pdfFile").files[0]);
+const drop = $("drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => pickFile(e.dataTransfer.files[0]));
+$("dropSub").textContent = DROP_SUB;
+
+// Grava um grupo de pedaços (com nova tentativa se a rede falhar)
+const writeChunks = (parentId, items) => withRetry(async () => {
+  const batch = writeBatch(db);
+  items.forEach(({ j, buf }) => batch.set(doc(db, "documents", parentId, "chunks", chunkId(j)), { n: j, data: Bytes.fromUint8Array(buf) }));
+  await batch.commit();
+});
+
+async function deleteChunks(parentId, count) {
+  const indexes = Array.from({ length: count }, (_, j) => j);
+  await writeInBatches(indexes, (batch, j) => batch.delete(doc(db, "documents", parentId, "chunks", chunkId(j))));
 }
-document.addEventListener("visibilitychange", () => { if (uploading && !document.hidden) keepAwake(true); });
-addEventListener("beforeunload", e => { if (uploading) { e.preventDefault(); e.returnValue = ""; } });
 
-const upFail = t => { upMsg(t, "err"); $("upMsg").scrollIntoView({ block: "center", behavior: "smooth" }); };
+const uploadErrorText = e => ({
+  "permission-denied": "sem permissão no Firebase (confira as regras de documents e chunks)",
+  "unauthenticated": "sessão expirada, entre de novo",
+  "unavailable": "sem conexão com o Firebase",
+  "resource-exhausted": "limite do Firebase atingido",
+  "timeout": "a conexão travou durante o envio"
+}[e.code] || (typeof e.code === "string" && e.code) || e.message || e.name);
 
-const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(Object.assign(new Error("timeout"), { code: "timeout" })), ms))]);
+$("btnUp").onclick = uploadPdf;
 
-$("btnUp").onclick = async () => {
-  if (uploading) return;
-  let parent = null, total = 0, written = 0;
+async function uploadPdf() {
+  if (uploadState.busy) return;
+  const file = pdfState.picked || $("pdfFile").files[0];
+  const title = $("title").value.trim();
+
+  if (!file) return uploadError("Escolha um arquivo PDF.");
+  uploadMsg("Conferindo o arquivo…");
+  if (!(await looksPdf(file))) return uploadError("Este arquivo não parece ser um PDF.");
+  if (!title) { $("title").focus(); return uploadError("Informe um título."); }
+  if (file.size > LIMITS.maxUploadMB * MB) return uploadError(`Tamanho máximo: ${LIMITS.maxUploadMB} MB.`);
+
+  const nearLimit = (pdfState.usedBytes + file.size) / MB > LIMITS.freeMB * 0.95;
+  if (nearLimit && !(await ask({
+    title: "Perto do limite de armazenamento",
+    text: `Este envio chega perto do limite gratuito de ~${LIMITS.freeMB / 1000} GB. Enviar mesmo assim?`,
+    ok: "Enviar mesmo assim", danger: false
+  }))) return uploadMsg("");
+
+  const parent = doc(collection(db, "documents"));
+  const total = Math.ceil(file.size / LIMITS.chunkBytes);
+  let written = 0;
+  setUploading(true);
+  bumpIdle();
   try {
-    const file = pickedFile || $("pdfFile").files[0], title = $("title").value.trim();
-    if (!file) return upFail("Escolha um arquivo PDF.");
-    upMsg("Conferindo o arquivo…");
-    if (!(await looksPdf(file))) return upFail("Este arquivo não parece ser um PDF.");
-    if (!title) { $("title").focus(); return upFail("Informe um título."); }
-    if (file.size > MAX_MB * 1048576) return upFail(`Tamanho máximo: ${MAX_MB} MB.`);
-    if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95 &&
-        !(await ask({ title: "Perto do limite de armazenamento", text: "Este envio chega perto do limite gratuito de ~1 GB. Enviar mesmo assim?", ok: "Enviar mesmo assim", danger: false }))) return upMsg("");
-
-    parent = doc(collection(db, "documents"));
-    total = Math.ceil(file.size / CHUNK);
-    uploading = true; keepAwake(true);
-    $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true; $("btnUp").textContent = "Enviando…";
-    upMsg("Enviando... 0% · mantenha esta tela aberta");
-    for (let i = 0; i < total; i += PER_BATCH) {
-      const end = Math.min(i + PER_BATCH, total), items = [];
-      for (let j = i; j < end; j++) items.push({ j, buf: new Uint8Array(await readBlob(file.slice(j * CHUNK, (j + 1) * CHUNK))) });
-      await withTimeout(commitChunks(parent.id, items), 60000);
-      written = end; bumpIdle();
-      const pc = (written / total) * 100; $("prog").value = pc; upMsg("Enviando... " + Math.round(pc) + "% · mantenha esta tela aberta");
+    for (let i = 0; i < total; i += LIMITS.chunksPerWrite) {
+      const end = Math.min(i + LIMITS.chunksPerWrite, total);
+      const items = [];
+      for (let j = i; j < end; j++) {
+        items.push({ j, buf: new Uint8Array(await readBlob(file.slice(j * LIMITS.chunkBytes, (j + 1) * LIMITS.chunkBytes))) });
+      }
+      await withTimeout(writeChunks(parent.id, items), 60000);
+      written = end;
+      bumpIdle();
+      const pct = (written / total) * 100;
+      $("prog").value = pct;
+      uploadMsg(`Enviando... ${Math.round(pct)}% · mantenha esta tela aberta`);
     }
-    await withTimeout(setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() }), 30000);  // só publica no fim
-    upMsg("PDF salvo na nuvem!", "ok"); toast("PDF enviado!");
-    $("title").value = ""; autoTitle = ""; $("pdfFile").value = ""; pickedFile = null;
-    $("dropName").textContent = "Escolher arquivo PDF"; $("dropSub").textContent = DROP_SUB;
-    $("drop").classList.remove("has");
-    loadDocs();
+    // Só aparece para os inscritos depois que todos os pedaços estiverem salvos
+    await withTimeout(setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() }), 30000);
+    uploadMsg("PDF salvo na nuvem!", "ok");
+    toast("PDF enviado!");
+    resetPicker();
+    loadPdfs();
   } catch (e) {
     console.error(e);
-    upFail("Erro no envio: " + errTxt(e) + ".");
-    if (parent) deleteChunks(parent.id, Math.min(written + PER_BATCH, total)).catch(() => {});
+    uploadError("Erro no envio: " + uploadErrorText(e) + ".");
+    // Limpa os pedaços já enviados para não ocupar espaço à toa
+    deleteChunks(parent.id, Math.min(written + LIMITS.chunksPerWrite, total)).catch(() => {});
   } finally {
-    uploading = false; keepAwake(false);
-    $("btnUp").disabled = false; $("btnUp").textContent = "Enviar PDF"; $("prog").hidden = true;
+    setUploading(false);
   }
-};
+}
 
 function drawMeter() {
-  const pct = Math.min(100, usedBytes / (FREE_MB * 1048576) * 100);
-  $("usedTxt").textContent = `${fmtMB(usedBytes)} de ${FREE_MB} MB`;
-  const bar = $("usedBar"); bar.style.width = pct + "%";
+  const pct = Math.min(100, pdfState.usedBytes / (LIMITS.freeMB * MB) * 100);
+  $("usedTxt").textContent = `${fmtMB(pdfState.usedBytes)} de ${LIMITS.freeMB} MB`;
+  const bar = $("usedBar");
+  bar.style.width = pct + "%";
   bar.className = pct >= 95 ? "bad" : pct >= 80 ? "warn" : "";
 }
 
-async function loadDocs() {
+function pdfRow(pdf) {
+  const dt = fmtDate(pdf.createdAt);
+  const info = fmtMB(pdf.size || 0) + (dt ? " · enviado em " + dt : "");
+  const del = removeButton("Apagar", "Apagar " + pdf.title);
+  del.onclick = () => removePdf(pdf, del);
+  return el("div", { class: "row static" }, [
+    el("span", { class: "fi", html: icon("file") }),
+    el("span", { class: "tx" }, [el("span", { class: "t1", text: pdf.title }), el("span", { class: "t2", text: info })]),
+    del
+  ]);
+}
+
+async function removePdf(pdf, button) {
+  const ok = await ask({
+    title: "Apagar PDF?",
+    text: `“${pdf.title}” será apagado definitivamente e os inscritos deixam de ver.`,
+    ok: "Apagar"
+  });
+  if (!ok) return;
+  button.disabled = true;
+  try {
+    await deleteDoc(doc(db, "documents", pdf.id));     // some para os inscritos primeiro
+    await deleteChunks(pdf.id, pdf.chunks || 0);
+    toast("PDF apagado.");
+  } catch (e) {
+    console.error(e);
+    toast("Não foi possível apagar.", true);
+  }
+  loadPdfs();
+}
+
+async function loadPdfs() {
   const box = $("docs");
   let snap;
-  try { snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc"))); }
-  catch (e) { console.error(e); emptyBox(box, "alert", "Não foi possível carregar os PDFs", e.code || e.message); return; }
-  box.innerHTML = ""; usedBytes = 0;
-  snap.forEach(d => usedBytes += d.data().size || 0);
-  $("docCount").textContent = snap.size; $("navPdfs").textContent = snap.size;
+  try {
+    snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc")));
+  } catch (e) {
+    console.error(e);
+    emptyBox(box, "alert", "Não foi possível carregar os PDFs", e.code || e.message);
+    return;
+  }
+  pdfState.list = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+  pdfState.usedBytes = pdfState.list.reduce((sum, p) => sum + (p.size || 0), 0);
+  $("docCount").textContent = pdfState.list.length;
+  $("navPdfs").textContent = pdfState.list.length;
   drawMeter();
-  if (snap.empty) { emptyBox(box, "file", "Nenhum PDF enviado ainda", "Escolha um arquivo em “Enviar PDF” para começar."); return; }
-  snap.forEach(d => {
-    const { title, size, chunks, createdAt } = d.data();
-    const row = document.createElement("div"); row.className = "row";
-    const fi = document.createElement("span"); fi.className = "fi"; fi.innerHTML = '<svg class="ic" aria-hidden="true"><use href="#file"/></svg>';
-    const tx = document.createElement("span"); tx.className = "tx";
-    const t1 = document.createElement("span"); t1.className = "t1"; t1.textContent = title;
-    const t2 = document.createElement("span"); t2.className = "t2";
-    const dt = fmtDate(createdAt); t2.textContent = fmtMB(size || 0) + (dt ? " · enviado em " + dt : "");
-    tx.append(t1, t2);
-    const b = rmBtn("Apagar", "Apagar " + title);
-    b.onclick = async () => {
-      const ok = await ask({ title: "Apagar PDF?", text: `“${title}” será apagado definitivamente e os inscritos deixam de ver.`, ok: "Apagar" });
-      if (!ok) return;
-      b.disabled = true;
-      try { await deleteDoc(doc(db, "documents", d.id)); await deleteChunks(d.id, chunks || 0); toast("PDF apagado."); }
-      catch (e) { console.error(e); toast("Não foi possível apagar.", true); }
-      loadDocs();
-    };
-    row.append(fi, tx, b); box.appendChild(row);
-  });
+
+  box.innerHTML = "";
+  if (!pdfState.list.length) {
+    emptyBox(box, "file", "Nenhum PDF enviado ainda", "Escolha um arquivo em “Enviar PDF” para começar.");
+    return;
+  }
+  pdfState.list.forEach(p => box.append(pdfRow(p)));
 }
 </script>
 </body>

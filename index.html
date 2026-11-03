@@ -266,7 +266,11 @@ function loadPdfJs() {
 }
 const rememberUser = (email, name) => { try { email ? localStorage.setItem("lua_u", JSON.stringify({ e: email, n: name || "" })) : localStorage.removeItem("lua_u"); } catch (e) {} };
 
-const ADMINS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
+// Admin: só admins conseguem ler a coleção "admins" (regras). Se a leitura for negada, não é admin.
+async function isAdminUser(email) {
+  try { await getDoc(doc(db, "admins", email)); return true; }
+  catch { return false; }
+}
 const $ = id => document.getElementById(id);
 const SCREENS = ["loader", "login", "home", "viewer"];
 const show = id => SCREENS.forEach(s => $(s).hidden = s !== id);
@@ -303,7 +307,7 @@ onAuthStateChanged(auth, async user => {
   if ($("home").hidden) show("loader");          // feedback imediato logo depois do login
   try {
     const email = (user.email || "").toLowerCase();
-    const isAdmin = ADMINS.includes(email);
+    const isAdmin = await isAdminUser(email);
     const listP = loadList();                    // a lista carrega ao mesmo tempo que o acesso é conferido
     const isAllowed = isAdmin || await getDoc(doc(db, "allowed", email)).then(s => s.exists()).catch(() => false);
     const ok = user.emailVerified && isAllowed;

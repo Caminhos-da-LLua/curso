@@ -203,6 +203,8 @@
 
   /* ---------- Upload ---------- */
   .drop{display:grid;gap:2px;justify-items:center;text-align:center;border:2px dashed var(--line);border-radius:14px;padding:28px 14px;cursor:pointer;margin-bottom:16px;color:var(--mute);transition:border-color .15s,background .15s}
+  .drop{position:relative}
+  .drop input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer;font-size:0}
   .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
   .drop.has{border-style:solid;border-color:var(--accent);background:var(--accent-soft)}
   .drop .ic{width:32px;height:32px;color:var(--accent);margin-bottom:6px}
@@ -252,6 +254,17 @@
   .tag{flex:none;font-size:11.5px;font-weight:700;padding:2px 10px;border-radius:999px;background:var(--accent-soft);color:var(--accent)}
   .acc-foot{display:flex;justify-content:flex-end;padding:14px 20px calc(16px + env(safe-area-inset-bottom));border-top:1px solid var(--line)}
   #dlgAcc .search{margin:14px 20px 0}
+
+  body:has(dialog[open]){overflow:hidden}
+  @media (max-width:599px){
+    #dlgAcc{width:100%;max-width:none;margin:auto 0 0;border-radius:20px 20px 0 0}
+    #dlgAcc[open]{max-height:88dvh}
+    .acc-h{padding:18px 16px 0}
+    #dlgAcc .search{margin:12px 16px 0}
+    .acc-body{padding:0 16px calc(20px + env(safe-area-inset-bottom))}
+    .acc-body .row{padding:12px 0}
+    .page-top .btn{width:100%}
+  }
 
   @media (max-width:640px){
     .rm{width:40px;padding:0}
@@ -368,11 +381,11 @@
         <section class="card sticky">
           <div class="card-h"><h2>Enviar PDF</h2></div>
           <p class="sub">Até 100 MB. O título aparece como nome do conteúdo para os inscritos.</p>
-          <div class="drop" id="drop" role="button" tabindex="0" aria-label="Escolher arquivo PDF">
+          <div class="drop" id="drop">
+            <input type="file" id="pdfFile" accept="application/pdf,.pdf" aria-label="Escolher arquivo PDF">
             <svg class="ic" aria-hidden="true"><use href="#upload"/></svg>
             <b id="dropName">Escolher arquivo PDF</b><span id="dropSub">ou arraste para cá</span>
           </div>
-          <input type="file" id="file" class="sr" accept="application/pdf,.pdf">
           <div class="field"><label class="lb" for="title">Título</label><input type="text" id="title" placeholder="Ex.: Módulo 1" maxlength="60" autocomplete="off"></div>
           <button class="btn primary full" id="btnUp" type="button">Enviar PDF</button>
           <progress id="prog" value="0" max="100" hidden></progress>
@@ -475,7 +488,7 @@ function toast(t, bad) {
 }
 
 // Qualquer erro inesperado aparece na tela (nada falha em silêncio)
-addEventListener("error", e => toast("Erro: " + (e.message || "inesperado"), true));
+addEventListener("error", e => { if (e.message && !/ResizeObserver|^Script error/.test(e.message)) toast("Erro: " + e.message, true); });
 addEventListener("unhandledrejection", e => toast("Erro: " + ((e.reason && (e.reason.code || e.reason.message)) || "inesperado"), true));
 
 // Confirmação em diálogo (no lugar do confirm() do navegador)
@@ -733,8 +746,13 @@ let usedBytes = 0;
 const DROP_SUB = matchMedia("(pointer:coarse)").matches ? "toque para escolher" : "ou arraste para cá";
 $("dropSub").textContent = DROP_SUB;
 let pickedFile = null, autoTitle = "";
-function pickFile(f) {
+async function pickFile(f) {
   if (!f) return;
+  try { await readBlob(f.slice(0, 16)); }
+  catch (e) {
+    pickedFile = null; $("drop").classList.remove("has");
+    return upFail("Não consegui ler este arquivo (" + (e.name || e.message) + "). Se ele está no Drive ou na nuvem, baixe para o aparelho e tente de novo.");
+  }
   pickedFile = f;                       // guardamos o arquivo aqui (não depende do campo, que no celular é instável)
   $("dropName").textContent = f.name;
   $("dropSub").textContent = fmtMB(f.size) + " · toque para trocar";
@@ -746,11 +764,8 @@ function pickFile(f) {
   }
   upMsg("");
 }
-$("file").onchange = () => pickFile($("file").files[0]);
+$("pdfFile").onchange = () => pickFile($("pdfFile").files[0]);
 const drop = $("drop");
-const openPicker = () => { $("file").value = ""; $("file").click(); };   // abre o seletor direto, em qualquer navegador
-drop.addEventListener("click", openPicker);
-drop.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); openPicker(); } });
 ["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
 ["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
 drop.addEventListener("drop", e => pickFile(e.dataTransfer.files[0]));
@@ -761,7 +776,7 @@ const errTxt = e => ({
   "unavailable": "sem conexão com o Firebase",
   "resource-exhausted": "limite do Firebase atingido",
   "timeout": "a conexão travou durante o envio"
-}[e.code] || e.code || e.message);
+}[e.code] || (typeof e.code === "string" && e.code) || e.message || e.name);
 const upMsg = (t, k) => { const e = $("upMsg"); e.textContent = t || ""; e.className = "msg " + (k || ""); };
 
 async function deleteChunks(id, count) {
@@ -824,7 +839,7 @@ $("btnUp").onclick = async () => {
   if (uploading) return;
   let parent = null, total = 0, written = 0;
   try {
-    const file = pickedFile || $("file").files[0], title = $("title").value.trim();
+    const file = pickedFile || $("pdfFile").files[0], title = $("title").value.trim();
     if (!file) return upFail("Escolha um arquivo PDF.");
     upMsg("Conferindo o arquivo…");
     if (!(await looksPdf(file))) return upFail("Este arquivo não parece ser um PDF.");
@@ -847,7 +862,7 @@ $("btnUp").onclick = async () => {
     }
     await withTimeout(setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() }), 30000);  // só publica no fim
     upMsg("PDF salvo na nuvem!", "ok"); toast("PDF enviado!");
-    $("title").value = ""; autoTitle = ""; $("file").value = ""; pickedFile = null;
+    $("title").value = ""; autoTitle = ""; $("pdfFile").value = ""; pickedFile = null;
     $("dropName").textContent = "Escolher arquivo PDF"; $("dropSub").textContent = DROP_SUB;
     $("drop").classList.remove("has");
     loadDocs();

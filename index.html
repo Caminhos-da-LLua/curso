@@ -5,7 +5,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#120b24">
 <meta name="color-scheme" content="dark">
-<meta name="robots" content="noindex">
+<meta name="robots" content="noindex, nofollow, noarchive, nosnippet, noimageindex">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self' 'unsafe-inline' https://www.gstatic.com https://apis.google.com https://cdnjs.cloudflare.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com data:; img-src 'self' data: blob: https://www.gstatic.com https://*.googleusercontent.com; connect-src 'self' https://*.googleapis.com wss://*.googleapis.com https://*.firebaseapp.com https://*.firebaseio.com https://www.gstatic.com https://accounts.google.com https://apis.google.com; frame-src https://*.firebaseapp.com https://accounts.google.com; worker-src 'self' blob: https://cdnjs.cloudflare.com; object-src 'none'; base-uri 'none'; form-action 'none'; media-src 'none'">
+<meta http-equiv="X-Content-Type-Options" content="nosniff">
 <title>Caminhos da Lua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -208,6 +211,9 @@
 <div id="shield"><div><svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg><span>O conteúdo fica oculto enquanto você estiver fora desta janela.<br>Volte para continuar.</span></div></div>
 
 <script>
+// Anti-iframe: se o site estiver dentro de outra página, esconde o conteúdo (clickjacking / captura).
+if (window.top !== window.self) { document.documentElement.style.display = "none"; try { window.top.location = window.self.location; } catch (e) {} }
+
 // Entrada instantânea: se esta pessoa já entrou neste aparelho, mostra a home na hora (com cartas "vazias").
 // É só visual; o acesso real e os dados continuam protegidos pelo Firebase.
 (function () {
@@ -396,11 +402,32 @@ async function fetchPdf(id, meta) {
   return new Uint8Array(out);
 }
 
+// Marca d'água em mosaico, gravada no próprio canvas: aparece em prints, fotos e capturas.
+function drawWatermark(c) {
+  const who = (window.__email || "").slice(0, 80);
+  if (!who) return;
+  const ctx = c.getContext("2d");
+  const stamp = new Date().toLocaleDateString("pt-BR");
+  const text = `${who} · ${stamp}`;
+  ctx.save();
+  ctx.font = `${Math.max(12, Math.round(c.width * 0.024))}px Georgia, serif`;
+  ctx.fillStyle = "rgba(70,45,100,0.13)";
+  ctx.translate(c.width / 2, c.height / 2);
+  ctx.rotate(-Math.PI / 6);
+  ctx.translate(-c.width / 2, -c.height / 2);
+  const dx = c.width * 0.5, dy = c.height * 0.12;
+  for (let y = -c.height; y < c.height * 2; y += dy)
+    for (let x = -c.width * (1 + ((y / dy) % 2) * 0.25); x < c.width * 2; x += dx)
+      ctx.fillText(text, x, y);
+  ctx.restore();
+}
+
 let currentPdf = null, currentIO = null, pageEls = [];
 function closeDoc() {
   try { currentIO && currentIO.disconnect(); } catch (e) {}
   try { currentPdf && currentPdf.destroy(); } catch (e) {}
   currentIO = currentPdf = null; pageEls = [];
+  bytesCache.clear();                          // não deixa o PDF na memória depois de fechar
   $("pages").innerHTML = "";
   $("pageInd").hidden = true; $("readBar").style.width = "0";
 }
@@ -439,6 +466,7 @@ async function render(email, meta) {
       const canvas = document.createElement("canvas");
       canvas.width = vp.width; canvas.height = vp.height;
       await page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+      drawWatermark(canvas);
       w.style.aspectRatio = vp.width + " / " + vp.height;
       w.insertBefore(canvas, w.firstChild);
       w._done = true;
@@ -467,17 +495,42 @@ async function render(email, meta) {
 document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("dragstart", e => e.preventDefault());
 document.addEventListener("copy", e => e.preventDefault());
+document.addEventListener("cut", e => e.preventDefault());
+document.addEventListener("selectstart", e => e.preventDefault());
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if ((e.ctrlKey || e.metaKey) && ["s","p","u","c","a"].includes(k)) e.preventDefault();
-  if (e.key === "F12" || e.key === "PrintScreen") { e.preventDefault(); navigator.clipboard?.writeText(""); }
+  const mod = e.ctrlKey || e.metaKey;
+  if (mod && ["s","p","u","c","a","x","i","j"].includes(k)) e.preventDefault();
+  if (mod && e.shiftKey && ["i","j","c","s","p"].includes(k)) e.preventDefault();
+  if (e.key === "F12") e.preventDefault();
+  if (e.key === "PrintScreen") { e.preventDefault(); navigator.clipboard?.writeText(""); hideBriefly(); }
 });
+// Ao soltar Print Screen, o sistema costuma copiar a tela logo depois: esconde o conteúdo por um instante.
+document.addEventListener("keyup", e => { if (e.key === "PrintScreen") { navigator.clipboard?.writeText(""); hideBriefly(900); } });
+
 const shield = $("shield");
 const hide = () => { if (!$("viewer").hidden) shield.style.display = "flex"; };
 const unhide = () => shield.style.display = "none";
+let briefTimer = 0;
+function hideBriefly(ms = 1500) {
+  if ($("viewer").hidden) return;
+  shield.style.display = "flex";
+  clearTimeout(briefTimer); briefTimer = setTimeout(unhide, ms);
+}
 window.addEventListener("blur", hide);
 window.addEventListener("focus", unhide);
 document.addEventListener("visibilitychange", () => document.hidden ? hide() : unhide());
+window.addEventListener("beforeprint", hide);
+window.addEventListener("pagehide", () => { closeDoc(); });
+
+// Ferramentas de desenvolvedor: a pausa do "debugger" fica lenta quando o DevTools está aberto.
+setInterval(() => {
+  if ($("viewer").hidden) return;
+  const t = performance.now();
+  // eslint-disable-next-line no-debugger
+  debugger;
+  if (performance.now() - t > 100) { hide(); }
+}, 1000);
 </script>
 </body>
 </html>

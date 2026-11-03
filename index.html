@@ -4,95 +4,133 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#120b24">
+<meta name="color-scheme" content="dark">
 <meta name="robots" content="noindex">
 <title>Caminhos da Lua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
 <style>
   :root{
+    color-scheme:dark;
     --bg1:#120b24; --bg2:#1d1238; --bg3:#2a1850;
-    --gold:#d9b86c; --gold-soft:#f0dca4; --ink:#efe8ff; --mute:#a99cc9;
+    --gold:#d9b86c; --gold-soft:#f0dca4; --ink:#efe8ff; --mute:#b3a8d0;
+    --gold-line:rgba(217,184,108,.5); --line:rgba(217,184,108,.2);
     --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
     --title:"Cinzel","Trajan Pro",Georgia,serif;
+    --pad:clamp(16px,4vw,40px);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none!important}
   html,body{margin:0;min-height:100%}
   body{
-    font-family:var(--serif);font-size:19px;color:var(--ink);
+    font-family:var(--serif);font-weight:500;font-size:19px;line-height:1.45;color:var(--ink);
     background:radial-gradient(ellipse at 50% 0%,var(--bg3) 0%,var(--bg2) 45%,var(--bg1) 100%) fixed;
     -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
-    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
   }
+  button{font:inherit;color:inherit}
+  :focus-visible{outline:2px solid var(--gold-soft);outline-offset:3px}
   #stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
   .star{position:absolute;background:var(--gold-soft);border-radius:50%;animation:tw 4s ease-in-out infinite}
   @keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
   .screen{position:relative;z-index:1;min-height:100vh;min-height:100dvh}
 
   /* ---------- Login ---------- */
-  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 24px;text-align:center}
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;text-align:center;
+          padding:max(32px,env(safe-area-inset-top)) max(24px,env(safe-area-inset-right)) max(32px,env(safe-area-inset-bottom)) max(24px,env(safe-area-inset-left))}
   .moon{width:120px;height:120px;filter:drop-shadow(0 0 22px rgba(240,220,164,.55));animation:float 7s ease-in-out infinite}
   @keyframes float{50%{transform:translateY(-8px)}}
-  h1{font-family:var(--title);font-weight:600;font-size:clamp(28px,6vw,46px);letter-spacing:.14em;margin:0;text-transform:uppercase;
+  h1{font-family:var(--title);font-weight:600;font-size:clamp(28px,6vw,46px);letter-spacing:.14em;line-height:1.2;margin:0;text-transform:uppercase;
      background:linear-gradient(180deg,#fff3cf,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  .sub{font-style:italic;color:var(--mute);font-size:clamp(18px,3.6vw,22px);margin:0}
+  .sub{font-style:italic;color:var(--mute);font-size:clamp(19px,3.6vw,23px);margin:0}
   .orn{display:flex;align-items:center;gap:12px;color:var(--gold);width:min(260px,70%)}
   .orn::before,.orn::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
   .orn::after{background:linear-gradient(270deg,transparent,var(--gold))}
-  .btn-google{display:inline-flex;align-items:center;gap:12px;padding:14px 28px;border-radius:999px;border:1px solid var(--gold);
+  .btn-google{display:inline-flex;align-items:center;justify-content:center;gap:12px;min-height:52px;padding:0 30px;border-radius:999px;border:1px solid var(--gold);
      background:rgba(255,255,255,.04);color:var(--gold-soft);font:600 15px var(--title);letter-spacing:.08em;cursor:pointer;
-     transition:.25s;backdrop-filter:blur(4px)}
-  .btn-google:hover{background:var(--gold);color:#1b1030;box-shadow:0 0 26px rgba(217,184,108,.45)}
-  .btn-google svg{width:20px;height:20px;background:#fff;border-radius:50%;padding:2px}
-  .err{color:#ff9fb2;font-size:17px;min-height:24px;margin:0}
+     transition:background .25s,color .25s,box-shadow .25s,transform .1s;backdrop-filter:blur(4px)}
+  .btn-google:active{transform:scale(.98)}
+  .btn-google svg{width:22px;height:22px;background:#fff;border-radius:50%;padding:2px}
+  @media (hover:hover){.btn-google:hover{background:var(--gold);color:#1b1030;box-shadow:0 0 26px rgba(217,184,108,.45)}}
+  .err{color:#ff9fb2;font-size:18px;min-height:26px;margin:0}
+  .note{margin:0;font-size:16px;color:var(--mute);opacity:.85;max-width:30ch}
 
   /* ---------- Topo ---------- */
-  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px clamp(16px,4vw,40px);
-       border-bottom:1px solid rgba(217,184,108,.2);background:rgba(18,11,36,.6);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
-  .brand{display:flex;align-items:center;gap:10px;font-family:var(--title);letter-spacing:.12em;color:var(--gold-soft);font-size:15px;text-transform:uppercase}
-  .brand svg{width:28px;height:28px}
-  .who{color:var(--mute);font-size:15px;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .btn{padding:8px 18px;border-radius:999px;border:1px solid rgba(217,184,108,.5);background:transparent;color:var(--gold-soft);
-       font:600 13px var(--title);letter-spacing:.08em;cursor:pointer;transition:.2s}
-  .btn:hover{background:rgba(217,184,108,.15)}
+  .top{position:sticky;top:0;z-index:5;display:flex;justify-content:space-between;align-items:center;gap:12px;
+       padding:calc(12px + env(safe-area-inset-top)) max(var(--pad),env(safe-area-inset-right)) 12px max(var(--pad),env(safe-area-inset-left));
+       border-bottom:1px solid var(--line);background:rgba(18,11,36,.72);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px)}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--title);letter-spacing:.12em;color:var(--gold-soft);font-size:15px;text-transform:uppercase;min-width:0}
+  .brand svg{width:30px;height:30px;flex:none}
+  .brand span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .right{display:flex;align-items:center;gap:12px}
+  .av{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;flex:none;font:600 14px var(--title);color:var(--gold-soft);
+      border:1px solid var(--gold-line);background:rgba(217,184,108,.08)}
+  .who{color:var(--mute);font-size:16px;max-width:260px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn{display:inline-flex;align-items:center;gap:8px;min-height:40px;padding:0 18px;border-radius:999px;border:1px solid var(--gold-line);background:transparent;color:var(--gold-soft);
+       font:600 13px var(--title);letter-spacing:.08em;cursor:pointer;white-space:nowrap;transition:background .2s,border-color .2s,transform .1s}
+  .btn:active{transform:scale(.97)}
+  @media (hover:hover){.btn:hover{background:rgba(217,184,108,.15);border-color:var(--gold)}}
+  .btn svg{width:16px;height:16px;fill:none;stroke:currentColor;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
 
-  /* ---------- Home: cartas ---------- */
-  .wrap{max-width:1100px;margin:0 auto;padding:36px clamp(16px,4vw,40px) 60px;text-align:center}
-  .wrap h2{font-family:var(--title);font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-soft);font-size:clamp(20px,4vw,28px);margin:0 0 6px}
-  .wrap .orn{margin:14px auto 34px}
-  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:clamp(14px,3vw,28px);justify-items:center}
-  .card{position:relative;width:100%;max-width:230px;aspect-ratio:2/3;border-radius:14px;cursor:pointer;
-        background:linear-gradient(160deg,#2f1c5c,#180e33 70%);border:1px solid var(--gold);
-        display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:20px 12px;
-        color:var(--ink);font:inherit;transition:transform .3s,box-shadow .3s;box-shadow:0 8px 24px rgba(0,0,0,.45)}
-  .card::before{content:"";position:absolute;inset:7px;border:1px solid rgba(217,184,108,.35);border-radius:9px;pointer-events:none}
-  .card:hover,.card:focus-visible{transform:translateY(-8px) rotate(-1deg);box-shadow:0 14px 34px rgba(217,184,108,.25),0 0 0 1px var(--gold);outline:none}
+  /* ---------- Home ---------- */
+  .wrap{max-width:1100px;margin:0 auto;text-align:center;
+        padding:clamp(28px,6vw,56px) max(var(--pad),env(safe-area-inset-right)) calc(64px + env(safe-area-inset-bottom)) max(var(--pad),env(safe-area-inset-left))}
+  .hello{margin:0 0 6px;font-style:italic;font-size:clamp(20px,3.6vw,24px);color:var(--mute)}
+  .wrap h2{font-family:var(--title);font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-soft);font-size:clamp(22px,4.4vw,32px);line-height:1.2;margin:0}
+  .wrap .orn{margin:16px auto 12px}
+  .count{margin:0 0 clamp(26px,5vw,44px);font-style:italic;color:var(--mute);font-size:19px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:clamp(14px,3vw,30px);justify-items:center}
+
+  .card{position:relative;width:100%;max-width:240px;aspect-ratio:2/3;border-radius:16px;cursor:pointer;
+        background:radial-gradient(120% 70% at 50% 0%,#3b2373 0%,#1d1039 55%,#150b2c 100%);border:1px solid var(--gold);
+        display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:22px 14px 20px;
+        box-shadow:0 8px 24px rgba(0,0,0,.45);transition:transform .3s,box-shadow .3s;
+        animation:deal .55s cubic-bezier(.2,.7,.2,1) backwards;animation-delay:calc(var(--i,0)*70ms)}
+  @keyframes deal{from{opacity:0;transform:translateY(26px) rotate(-3deg)}}
+  .card::before{content:"";position:absolute;inset:7px;border:1px solid rgba(217,184,108,.35);border-radius:10px;pointer-events:none}
+  .card:focus-visible{transform:translateY(-8px);box-shadow:0 14px 34px rgba(217,184,108,.25),0 0 0 1px var(--gold)}
+  @media (hover:hover){.card:hover{transform:translateY(-8px) rotate(-1deg);box-shadow:0 14px 34px rgba(217,184,108,.25),0 0 0 1px var(--gold)}}
+  .card:active{transform:scale(.98)}
   .card .num{font-family:var(--title);color:var(--gold);font-size:15px;letter-spacing:.2em}
-  .card svg{width:56%;max-width:92px;filter:drop-shadow(0 0 10px rgba(240,220,164,.45))}
+  .card svg{width:56%;max-width:96px;filter:drop-shadow(0 0 10px rgba(240,220,164,.45))}
   .card .name{font-family:var(--title);font-size:clamp(12px,2.6vw,15px);letter-spacing:.07em;line-height:1.35;color:var(--gold-soft);text-transform:uppercase;padding:0 4px;
        display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
-  .empty{color:var(--mute);font-style:italic}
+  .tag{position:absolute;top:14px;right:14px;padding:2px 9px;border-radius:999px;background:var(--gold);color:#1b1030;font:700 10px var(--title);letter-spacing:.12em;text-transform:uppercase}
+  .empty{grid-column:1/-1;display:grid;justify-items:center;gap:10px;color:var(--mute);font-style:italic;padding:30px 0}
+  .empty svg{width:64px;height:64px;opacity:.9;filter:drop-shadow(0 0 14px rgba(240,220,164,.4))}
 
   /* ---------- Leitor ---------- */
-  #pages{display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 12px 60px}
-  .page{position:relative;width:100%;max-width:900px;border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+  .readbar{position:absolute;left:0;right:0;bottom:-1px;height:2px}
+  .readbar i{display:block;height:100%;width:0;background:var(--gold);box-shadow:0 0 8px rgba(217,184,108,.7)}
+  .docTitle{font-family:var(--title);color:var(--gold-soft);font-size:14px;letter-spacing:.08em;text-transform:uppercase;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;min-width:0;text-align:center}
+  #pages{display:flex;flex-direction:column;align-items:center;gap:18px;
+         padding:22px max(12px,env(safe-area-inset-right)) calc(84px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
+  .page{position:relative;width:100%;max-width:900px;border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6);background:#fff}
   canvas{display:block;width:100%;height:auto;background:#fff;pointer-events:none}
   .wm{position:absolute;inset:-30%;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;
       pointer-events:none;opacity:.12;color:#000;font:700 18px sans-serif;transform:rotate(-25deg)}
   .wm span{padding:30px}
-  .docTitle{font-family:var(--title);color:var(--gold-soft);font-size:14px;letter-spacing:.08em;text-transform:uppercase;
-            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:center}
+  .pageind{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:6;pointer-events:none;
+           padding:8px 18px;border-radius:999px;background:rgba(18,11,36,.88);border:1px solid var(--gold-line);backdrop-filter:blur(8px);
+           font:600 13px var(--title);letter-spacing:.12em;color:var(--gold-soft);font-variant-numeric:tabular-nums}
+  .loading{display:grid;justify-items:center;gap:8px;margin-top:40px}
+  .loading .moon{width:70px;height:70px;animation:spin 2.4s linear infinite}
+  .retry{margin-top:8px}
 
   /* ---------- Loader / escudo ---------- */
   #loader{display:flex;align-items:center;justify-content:center}
   #loader .moon{width:80px;height:80px;animation:spin 2.4s linear infinite}
   @keyframes spin{to{transform:rotate(360deg)}}
-  #shield{position:fixed;inset:0;background:var(--bg1);display:none;z-index:99;align-items:center;justify-content:center;
-          text-align:center;padding:24px;font-style:italic;color:var(--mute)}
-  @media (max-width:520px){ body{font-size:17px} .who{display:none} .moon{width:96px;height:96px} .grid{grid-template-columns:repeat(2,1fr)} }
-  @media (prefers-reduced-motion:reduce){ *{animation:none!important} }
+  #shield{position:fixed;inset:0;background:var(--bg1);display:none;z-index:99;align-items:center;justify-content:center;text-align:center;padding:24px}
+  #shield div{display:grid;justify-items:center;gap:14px;font-style:italic;color:var(--mute);max-width:32ch}
+  #shield .moon{width:72px;height:72px;animation:none}
+
+  @media (max-width:720px){ .who{display:none} }
+  @media (max-width:520px){ body{font-size:18px} .moon{width:96px;height:96px} .grid{grid-template-columns:repeat(2,1fr)} .brand{font-size:13px} }
+  @media (max-width:420px){ .btn .lbl{display:none} .btn{padding:0 14px} }
+  @media (prefers-reduced-motion:reduce){ *,*::before,*::after{animation:none!important;transition:none!important} }
   @media print{ body{display:none!important} }
 </style>
 </head>
@@ -111,30 +149,37 @@
 <div id="stars"></div>
 
 <!-- Carregando -->
-<div id="loader" class="screen"><svg class="moon"><use href="#i-moon"/></svg></div>
+<div id="loader" class="screen" role="status" aria-label="Carregando"><svg class="moon"><use href="#i-moon"/></svg></div>
 
 <!-- Login -->
 <div id="login" class="screen center" hidden>
-  <svg class="moon"><use href="#i-moon"/></svg>
+  <svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg>
   <h1>Caminhos da Lua</h1>
-  <div class="orn">✦</div>
+  <div class="orn" aria-hidden="true">✦</div>
   <p class="sub">Seu acesso ao curso</p>
-  <button class="btn-google" id="btnLogin">
-    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.7 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6C12.3 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.8A14.5 14.5 0 0 1 9.5 24c0-1.7.3-3.3.9-4.8l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.7-3.9-13.6-9.5l-7.8 6C6.5 42.6 14.6 48 24 48z"/></svg>
+  <button class="btn-google" id="btnLogin" type="button">
+    <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.7 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6C12.3 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.8A14.5 14.5 0 0 1 9.5 24c0-1.7.3-3.3.9-4.8l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.7-3.9-13.6-9.5l-7.8 6C6.5 42.6 14.6 48 24 48z"/></svg>
     Entrar com Google
   </button>
-  <p id="msg" class="err"></p>
+  <p id="msg" class="err" role="alert"></p>
+  <p class="note">Use o e-mail Google que foi liberado para você.</p>
 </div>
 
 <!-- Home -->
 <div id="home" class="screen" hidden>
   <header class="top">
-    <div class="brand"><svg><use href="#i-moon"/></svg><span>Caminhos da Lua</span></div>
-    <div class="right"><span class="who" id="who"></span><button class="btn" id="btnOut">Sair</button></div>
+    <div class="brand"><svg aria-hidden="true"><use href="#i-moon"/></svg><span>Caminhos da Lua</span></div>
+    <div class="right">
+      <span class="who" id="who"></span>
+      <span class="av" id="avatar" aria-hidden="true"></span>
+      <button class="btn" id="btnOut" type="button">Sair</button>
+    </div>
   </header>
   <main class="wrap">
+    <p class="hello" id="greet" hidden></p>
     <h2>Seu curso</h2>
-    <div class="orn">✦</div>
+    <div class="orn" aria-hidden="true">✦</div>
+    <p class="count" id="countTxt"></p>
     <div class="grid" id="list"></div>
   </main>
 </div>
@@ -142,14 +187,16 @@
 <!-- Leitor -->
 <div id="viewer" class="screen" hidden>
   <header class="top">
-    <button class="btn" id="btnBack">← Voltar</button>
+    <button class="btn" id="btnBack" type="button" aria-label="Voltar"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg><span class="lbl">Voltar</span></button>
     <div class="docTitle" id="docTitle"></div>
-    <button class="btn" id="btnOut2">Sair</button>
+    <button class="btn" id="btnOut2" type="button">Sair</button>
+    <div class="readbar" aria-hidden="true"><i id="readBar"></i></div>
   </header>
   <div id="pages"></div>
+  <div class="pageind" id="pageInd" hidden aria-live="polite"></div>
 </div>
 
-<div id="shield">O conteúdo fica oculto enquanto você estiver fora desta janela.<br>Volte para continuar.</div>
+<div id="shield"><div><svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg><span>O conteúdo fica oculto enquanto você estiver fora desta janela.<br>Volte para continuar.</span></div></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script type="module">
@@ -184,7 +231,8 @@ const roman = n => { const m=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]]; let r
 // ---------- Estrelas ----------
 (() => {
   const box = $("stars");
-  for (let i = 0; i < 70; i++) {
+  const total = innerWidth < 600 ? 40 : 70;
+  for (let i = 0; i < total; i++) {
     const s = document.createElement("i"); s.className = "star";
     const z = Math.random() * 2.2 + .8;
     s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-delay:${Math.random()*4}s;animation-duration:${3+Math.random()*4}s`;
@@ -218,6 +266,9 @@ onAuthStateChanged(auth, async user => {
     }
     $("msg").textContent = "";
     $("who").textContent = email;
+    const first = (user.displayName || "").trim().split(/\s+/)[0];
+    $("avatar").textContent = (first || email || "?")[0].toUpperCase();
+    $("greet").textContent = first ? "Olá, " + first : ""; $("greet").hidden = !first;
     window.__email = email;
     await loadList();
     show("home");
@@ -232,26 +283,40 @@ onAuthStateChanged(auth, async user => {
 async function loadList() {
   const snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc")));
   const list = $("list"); list.innerHTML = "";
-  if (snap.empty) { list.innerHTML = '<p class="empty">Em breve, novos conteúdos.</p>'; return; }
+  if (snap.empty) {
+    $("countTxt").textContent = "";
+    list.innerHTML = '<div class="empty"><svg aria-hidden="true"><use href="#i-moon"/></svg><span>Em breve, novos conteúdos.</span></div>';
+    return;
+  }
   let n = 0;
   snap.forEach(d => {
     n++;
     const data = d.data();
-    const b = document.createElement("button"); b.className = "card";
-    b.innerHTML = `<span class="num">${roman(n)}</span><svg><use href="#${ICONS[(n-1)%ICONS.length]}"/></svg><span class="name"></span>`;
+    const b = document.createElement("button"); b.className = "card"; b.type = "button";
+    b.style.setProperty("--i", Math.min(n - 1, 10));
+    b.innerHTML = `<span class="num">${roman(n)}</span><svg aria-hidden="true"><use href="#${ICONS[(n-1)%ICONS.length]}"/></svg><span class="name"></span>`;
     b.querySelector(".name").textContent = data.title;
+    b.setAttribute("aria-label", data.title);
+    const ms = data.createdAt && data.createdAt.toMillis ? data.createdAt.toMillis() : 0;
+    if (ms && Date.now() - ms < 7 * 864e5) { const t = document.createElement("span"); t.className = "tag"; t.textContent = "Novo"; b.appendChild(t); }
     b.onclick = () => openDoc({ ...data, id: d.id });
     list.appendChild(b);
   });
+  $("countTxt").textContent = n + (n === 1 ? " conteúdo disponível" : " conteúdos disponíveis");
 }
 
 // ---------- Leitor protegido ----------
 async function openDoc(data) {
   $("docTitle").textContent = data.title;
-  $("pages").innerHTML = '<svg class="moon" style="width:70px;height:70px;animation:spin 2.4s linear infinite;margin-top:40px"><use href="#i-moon"/></svg><p id="pct" class="sub"></p>';
+  $("pageInd").hidden = true; $("readBar").style.width = "0";
+  $("pages").innerHTML = '<div class="loading"><svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg><p id="pct" class="sub">Abrindo o conteúdo…</p></div>';
   show("viewer"); window.scrollTo(0, 0);
   try { await render(window.__email, data); }
-  catch (e) { console.error(e); $("pages").innerHTML = '<p class="err">Não foi possível abrir este conteúdo.</p>'; }
+  catch (e) {
+    console.error(e);
+    $("pages").innerHTML = '<div class="loading"><p class="err">Não foi possível abrir este conteúdo.</p><button class="btn retry" type="button">Tentar de novo</button></div>';
+    $("pages").querySelector(".retry").onclick = () => openDoc(data);
+  }
 }
 
 const bytesCache = new Map();
@@ -274,13 +339,29 @@ async function fetchPdf(id, meta) {
   return new Uint8Array(out);
 }
 
-let currentPdf = null, currentIO = null;
+let currentPdf = null, currentIO = null, pageEls = [];
 function closeDoc() {
   try { currentIO && currentIO.disconnect(); } catch (e) {}
   try { currentPdf && currentPdf.destroy(); } catch (e) {}
-  currentIO = currentPdf = null;
+  currentIO = currentPdf = null; pageEls = [];
   $("pages").innerHTML = "";
+  $("pageInd").hidden = true; $("readBar").style.width = "0";
 }
+
+// Indicador de página e barra de progresso de leitura
+let raf = 0;
+function updateReader() {
+  raf = 0;
+  if ($("viewer").hidden || !pageEls.length) return;
+  const mid = innerHeight * 0.4; let cur = 0;
+  for (let i = 0; i < pageEls.length; i++) {
+    if (pageEls[i].getBoundingClientRect().top <= mid) cur = i; else break;
+  }
+  $("pageInd").textContent = `${cur + 1} / ${pageEls.length}`; $("pageInd").hidden = false;
+  const max = document.documentElement.scrollHeight - innerHeight;
+  $("readBar").style.width = (max > 0 ? Math.min(100, scrollY / max * 100) : 0) + "%";
+}
+addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(updateReader); }, { passive: true });
 
 async function render(email, meta) {
   const data = await fetchPdf(meta.id, meta);
@@ -324,6 +405,8 @@ async function render(email, meta) {
     box.appendChild(w);
     currentIO.observe(w);
   }
+  pageEls = [...box.querySelectorAll(".page")];
+  updateReader();
 }
 
 // ---------- Dissuasores ----------

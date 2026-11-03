@@ -3,146 +3,181 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<meta name="theme-color" content="#120b24">
+<meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex, nofollow">
 <title>Admin · Caminhos da Lua</title>
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  :root{--bg1:#120b24;--bg2:#1d1238;--bg3:#2a1850;--gold:#d9b86c;--gold-soft:#f0dca4;--ink:#efe8ff;--mute:#a99cc9;--red:#e0788c;--green:#8fe0a8;
-        --serif:"Cormorant Garamond",Georgia,serif;--title:"Cinzel",Georgia,serif}
+  :root{
+    --bg:#f5f6f8; --card:#ffffff; --line:#e4e6eb; --ink:#1c2030; --mute:#667085;
+    --accent:#5b3fd1; --accent-h:#4a31b3; --accent-soft:#efeafd;
+    --danger:#d6334f; --danger-soft:#fdecef; --ok:#16794a;
+    --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
+    --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+  }
+  @media (prefers-color-scheme:dark){
+    :root{ --bg:#14161d; --card:#1c1f29; --line:#2c303c; --ink:#eceef4; --mute:#9aa1b2;
+           --accent:#8b73f0; --accent-h:#9d89f4; --accent-soft:#2a2547;
+           --danger:#f0667f; --danger-soft:#3a2029; --ok:#5fd39a; --shadow:none; }
+  }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none!important}
-  body{margin:0;min-height:100vh;font-family:var(--serif);font-size:19px;color:var(--ink);
-       background:radial-gradient(ellipse at 50% 0%,var(--bg3),var(--bg2) 45%,var(--bg1)) fixed;
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);
        padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  h1,h2{font-family:var(--title);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin:0}
-  h1{font-size:clamp(24px,5vw,34px);background:linear-gradient(180deg,#fff3cf,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  h2{font-size:16px;color:var(--gold-soft)}
-  .moon{width:90px;height:90px;filter:drop-shadow(0 0 18px rgba(240,220,164,.5))}
-  .center{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
-  .sub{color:var(--mute);font-style:italic;margin:0}
-  .err{color:var(--red);min-height:22px;margin:0}
+  h1,h2{margin:0;font-weight:650;letter-spacing:-.01em}
+  h1{font-size:24px} h2{font-size:17px}
+  .muted{color:var(--mute)}
 
-  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px clamp(14px,4vw,32px);
-       background:rgba(18,11,36,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5;border-bottom:1px solid rgba(217,184,108,.2)}
-  .brand{font-family:var(--title);letter-spacing:.1em;color:var(--gold-soft);font-size:14px;text-transform:uppercase}
-  .who{color:var(--mute);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:36vw}
-  .tabs{display:flex;gap:8px;max-width:760px;margin:18px auto 0;padding:0 clamp(14px,4vw,32px)}
-  .tab{flex:1;padding:14px 10px;border-radius:12px;border:1px solid rgba(217,184,108,.35);background:rgba(255,255,255,.03);color:var(--mute);
-       font:600 14px var(--title);letter-spacing:.08em;cursor:pointer;text-transform:uppercase}
-  .tab.on{background:linear-gradient(180deg,rgba(217,184,108,.25),rgba(217,184,108,.08));color:var(--gold-soft);border-color:var(--gold)}
-  main{max-width:760px;margin:0 auto;padding:18px clamp(14px,4vw,32px) 80px;display:grid;gap:18px}
-  .card{background:rgba(255,255,255,.045);border:1px solid rgba(217,184,108,.3);border-radius:16px;padding:18px}
-  .card h2{margin-bottom:4px}
-  .hint{color:var(--mute);font-size:16px;margin:0 0 12px}
-  .bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
-  .count{color:var(--gold);font-family:var(--title);font-size:13px;letter-spacing:.08em}
+  /* ---------- Login ---------- */
+  .center{min-height:100vh;display:grid;place-items:center;padding:24px}
+  .login-card{width:100%;max-width:380px;background:var(--card);border:1px solid var(--line);border-radius:16px;
+              padding:32px 28px;text-align:center;box-shadow:var(--shadow);display:grid;gap:14px;justify-items:center}
+  .logo{width:48px;height:48px;border-radius:12px;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center}
+  .logo svg{width:26px;height:26px}
+  .err{color:var(--danger);font-size:14px;min-height:20px;margin:0}
 
-  input[type=text],input[type=search]{width:100%;padding:13px 14px;border-radius:10px;border:1px solid rgba(217,184,108,.4);background:rgba(0,0,0,.28);
-       color:var(--ink);font:inherit;-webkit-user-select:text;user-select:text}
-  input:focus{outline:2px solid var(--gold)}
-  .btn{padding:12px 22px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold-soft);
-       font:600 13px var(--title);letter-spacing:.08em;cursor:pointer;transition:.2s}
-  .btn:hover{background:rgba(217,184,108,.2)}
-  .btn.gold{background:var(--gold);color:#1b1030}
-  .btn.gold:hover{filter:brightness(1.1)}
-  .btn:disabled{opacity:.45;cursor:not-allowed}
-  .btn.red{border-color:var(--red);color:#ffc0cc}
-  .btn.red:hover{background:var(--red);color:#fff}
-  .btn.sm{padding:7px 14px;font-size:12px}
+  /* ---------- Topo e abas ---------- */
+  .top{background:var(--card);border-bottom:1px solid var(--line);position:sticky;top:0;z-index:5}
+  .top-in{max-width:760px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;justify-content:space-between;gap:12px}
+  .brand{display:flex;align-items:center;gap:10px;font-weight:650}
+  .brand .logo{width:32px;height:32px;border-radius:8px}.brand .logo svg{width:18px;height:18px}
+  .brand small{font-weight:500;color:var(--mute)}
+  .who{font-size:14px;color:var(--mute);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:34vw}
+  .tabs{max-width:760px;margin:0 auto;padding:0 20px;display:flex;gap:4px}
+  .tab{appearance:none;background:none;border:0;border-bottom:2px solid transparent;padding:12px 14px;font:inherit;font-weight:600;color:var(--mute);cursor:pointer}
+  .tab:hover{color:var(--ink)}
+  .tab.on{color:var(--accent);border-bottom-color:var(--accent)}
+
+  main{max-width:760px;margin:0 auto;padding:22px 20px 90px}
+  .stack{display:grid;gap:18px}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
+  .card p.sub{margin:0 0 16px;color:var(--mute);font-size:14.5px}
+  .badge{background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px}
+
+  /* ---------- Campos e botões ---------- */
+  label.lb{display:block;font-size:14px;font-weight:600;margin:0 0 6px}
+  input[type=text],input[type=search]{width:100%;padding:11px 13px;border-radius:10px;border:1px solid var(--line);background:var(--card);color:var(--ink);
+       font:inherit;-webkit-user-select:text;user-select:text}
+  input::placeholder{color:#98a2b3}
+  input:focus,.chipbox:focus-within,.drop:focus-within{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
+  .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:10px;border:1px solid var(--line);
+       background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .15s,border-color .15s}
+  .btn:hover{background:var(--bg)}
+  .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+  .btn.primary:hover{background:var(--accent-h)}
+  .btn.red{color:var(--danger);border-color:transparent;background:transparent}
+  .btn.red:hover{background:var(--danger-soft)}
+  .btn.sm{padding:6px 12px;font-size:14px;border-radius:8px}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
   .full{width:100%}
 
-  /* chips de e-mail */
-  .chipbox{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-radius:12px;border:1px dashed rgba(217,184,108,.55);background:rgba(0,0,0,.22);margin-bottom:12px}
-  .chipbox:focus-within{border-style:solid;border-color:var(--gold)}
-  .chip{display:inline-flex;align-items:center;gap:8px;background:rgba(217,184,108,.18);border:1px solid rgba(217,184,108,.5);border-radius:999px;padding:4px 6px 4px 12px;font-size:16px}
-  .chip button{border:0;background:rgba(255,255,255,.12);color:var(--ink);width:22px;height:22px;border-radius:50%;cursor:pointer;line-height:1}
-  .chipbox input{flex:1;min-width:180px;border:0;background:transparent;padding:6px;outline:none!important}
+  /* chips */
+  .chipbox{display:flex;flex-wrap:wrap;gap:6px;padding:8px;border-radius:10px;border:1px solid var(--line);background:var(--card);margin-bottom:12px;cursor:text}
+  .chip{display:inline-flex;align-items:center;gap:6px;background:var(--accent-soft);color:var(--accent);border-radius:999px;padding:3px 4px 3px 12px;font-size:14.5px;font-weight:500}
+  .chip button{border:0;background:transparent;color:inherit;width:22px;height:22px;border-radius:50%;cursor:pointer;font-size:16px;line-height:1}
+  .chip button:hover{background:rgba(91,63,209,.18)}
+  .chipbox input{flex:1;min-width:190px;border:0;background:transparent;padding:6px;outline:none!important}
 
-  /* lista de alunas */
-  .list{max-height:460px;overflow:auto;border-top:1px solid rgba(217,184,108,.2);margin-top:12px}
-  .row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(217,184,108,.12)}
-  .row .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b2670,#5b3aa8);display:grid;place-items:center;font:600 14px var(--title);color:var(--gold-soft);flex:none}
-  .row .tx{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .row input[type=checkbox]{width:20px;height:20px;accent-color:var(--gold);flex:none}
-  .selbar{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(224,120,140,.12);border:1px solid var(--red);
-          border-radius:12px;padding:10px 14px;margin-top:12px}
-  .empty{color:var(--mute);font-style:italic;padding:18px 4px;text-align:center}
+  /* lista */
+  .toolbar{display:flex;gap:10px;align-items:center;margin:14px 0 0}
+  .toolbar input[type=search]{flex:1}
+  .selall{display:flex;align-items:center;gap:8px;font-size:14px;color:var(--mute);cursor:pointer;padding:12px 2px 6px;user-select:none}
+  .selall input,.row input[type=checkbox]{width:18px;height:18px;accent-color:var(--accent);flex:none;cursor:pointer}
+  .selbar{display:flex;align-items:center;justify-content:space-between;gap:10px;background:var(--accent-soft);border-radius:10px;padding:8px 8px 8px 14px;margin-top:12px;font-weight:600;color:var(--accent)}
+  .selbar .btn{border-color:transparent}
+  .list{max-height:480px;overflow:auto;border-top:1px solid var(--line)}
+  .row{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line)}
+  .row:last-child{border-bottom:0}
+  .av{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:650;font-size:14px;flex:none}
+  .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .empty{color:var(--mute);text-align:center;padding:26px 8px;margin:0}
 
   /* upload */
-  .drop{display:block;border:2px dashed rgba(217,184,108,.55);border-radius:14px;padding:28px 14px;text-align:center;cursor:pointer;margin-bottom:12px;color:var(--mute);transition:.2s}
-  .drop.over,.drop:hover{background:rgba(217,184,108,.1);border-color:var(--gold)}
-  .drop b{display:block;color:var(--gold-soft);font:600 15px var(--title);letter-spacing:.06em;margin-bottom:4px;word-break:break-all}
-  progress{width:100%;height:12px;margin:12px 0 0;accent-color:var(--gold)}
-  .msg{min-height:22px;margin:10px 0 0;color:var(--mute)}.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+  .drop{display:grid;gap:2px;justify-items:center;text-align:center;border:2px dashed var(--line);border-radius:12px;padding:28px 14px;cursor:pointer;margin-bottom:16px;color:var(--mute);transition:.15s}
+  .drop:hover,.drop.over{border-color:var(--accent);background:var(--accent-soft)}
+  .drop svg{width:30px;height:30px;color:var(--accent);margin-bottom:6px}
+  .drop b{color:var(--ink);font-weight:600;word-break:break-all}
+  .field{margin-bottom:16px}
+  progress{width:100%;height:8px;margin-top:14px;accent-color:var(--accent)}
+  .msg{min-height:20px;margin:12px 0 0;font-size:14.5px;color:var(--mute)}.msg.err{color:var(--danger)}.msg.ok{color:var(--ok)}
 
-  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;
-         background:#1f1440;border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:999px;transition:.3s;z-index:20;max-width:90vw;text-align:center}
-  #toast.show{opacity:1;transform:translate(-50%,0)}#toast.bad{border-color:var(--red);color:#ffc0cc}
+  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;
+         background:#1c2030;color:#fff;padding:11px 18px;border-radius:10px;font-size:15px;transition:.25s;z-index:20;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+  #toast.show{opacity:1;transform:translate(-50%,0)}#toast.bad{background:var(--danger)}
+  @media (max-width:520px){ .who{display:none} .card{padding:16px} }
 </style>
 </head>
 <body>
 
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="moon" viewBox="0 0 24 24"><path fill="currentColor" d="M15.5 2.5a9.5 9.5 0 1 0 6 16.9A8 8 0 0 1 15.5 2.5z"/></symbol>
+</svg>
+
+<!-- Login -->
 <div id="login" class="center">
-  <svg class="moon" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset="1" stop-color="#d9b86c"/></linearGradient></defs><path fill="url(#g)" d="M62 8a42 42 0 1 0 30 70A36 36 0 0 1 62 8z"/></svg>
-  <h1>Painel Admin</h1>
-  <p class="sub">Caminhos da Lua</p>
-  <button class="btn gold" id="btnLogin">Entrar com Google</button>
-  <p id="msg" class="err"></p>
+  <div class="login-card">
+    <div class="logo"><svg><use href="#moon"/></svg></div>
+    <div><h1>Painel Admin</h1><p class="muted" style="margin:4px 0 0">Caminhos da Lua</p></div>
+    <button class="btn primary full" id="btnLogin">Entrar com Google</button>
+    <p id="msg" class="err"></p>
+  </div>
 </div>
 
+<!-- App -->
 <div id="app" hidden>
   <header class="top">
-    <span class="brand">☾ Admin</span>
-    <span style="display:flex;gap:12px;align-items:center"><span class="who" id="who"></span><button class="btn sm" id="btnOut">Sair</button></span>
+    <div class="top-in">
+      <div class="brand"><span class="logo"><svg><use href="#moon"/></svg></span><span>Caminhos da Lua <small>· Admin</small></span></div>
+      <div style="display:flex;align-items:center;gap:12px"><span class="who" id="who"></span><button class="btn sm" id="btnOut">Sair</button></div>
+    </div>
+    <nav class="tabs">
+      <button class="tab on" data-tab="people">Alunas</button>
+      <button class="tab" data-tab="pdfs">PDFs</button>
+    </nav>
   </header>
 
-  <nav class="tabs">
-    <button class="tab on" data-tab="people">✉ Alunas</button>
-    <button class="tab" data-tab="pdfs">📄 PDFs</button>
-  </nav>
-
   <main>
-    <!-- ======== ALUNAS ======== -->
-    <div id="tab-people" style="display:grid;gap:18px">
+    <!-- ===== Alunas ===== -->
+    <div id="tab-people" class="stack">
       <section class="card">
-        <h2>Liberar acesso</h2>
-        <p class="hint">Digite ou cole os e-mails Google das alunas. Aperte <b>Enter</b> para cada um (ou cole vários de uma vez).</p>
-        <div class="chipbox" id="chipbox"><input type="text" id="emailIn" placeholder="email@gmail.com" autocomplete="off" autocapitalize="off" inputmode="email"></div>
-        <button class="btn gold full" id="btnAdd" disabled>Liberar acesso</button>
+        <div class="card-h"><h2>Liberar acesso</h2></div>
+        <p class="sub">Digite o e-mail Google da aluna e aperte Enter. Você pode colar vários de uma vez.</p>
+        <div class="chipbox" id="chipbox"><input type="text" id="emailIn" placeholder="nome@gmail.com" autocomplete="off" autocapitalize="off" inputmode="email"></div>
+        <button class="btn primary full" id="btnAdd" disabled>Liberar acesso</button>
       </section>
 
       <section class="card">
-        <div class="bar"><h2>Alunas com acesso</h2><span class="count" id="count"></span></div>
-        <input type="search" id="filter" placeholder="Buscar e-mail...">
+        <div class="card-h"><h2>Quem tem acesso</h2><span class="badge" id="count">0</span></div>
+        <div class="toolbar"><input type="search" id="filter" placeholder="Buscar e-mail"></div>
         <div class="selbar" id="selbar" hidden>
           <span id="selTxt"></span>
-          <span style="display:flex;gap:8px"><button class="btn sm" id="btnNone">Limpar</button><button class="btn sm red" id="btnDelSel">Remover</button></span>
+          <span style="display:flex;gap:6px"><button class="btn sm" id="btnNone">Cancelar</button><button class="btn sm red" id="btnDelSel">Remover</button></span>
         </div>
-        <div class="bar" style="margin:12px 0 0"><label style="display:flex;gap:8px;align-items:center;font-size:16px;color:var(--mute);cursor:pointer"><input type="checkbox" id="selAll" style="width:18px;height:18px;accent-color:var(--gold)"> Selecionar todas</label></div>
+        <label class="selall"><input type="checkbox" id="selAll"> Selecionar todas</label>
         <div class="list" id="emails"><p class="empty">Carregando...</p></div>
       </section>
     </div>
 
-    <!-- ======== PDFs ======== -->
-    <div id="tab-pdfs" style="display:none;gap:18px">
+    <!-- ===== PDFs ===== -->
+    <div id="tab-pdfs" class="stack" style="display:none">
       <section class="card">
-        <h2>Enviar PDF</h2>
-        <p class="hint">Até 100 MB. O título vira o nome da carta no site.</p>
-        <label class="drop" id="drop" for="file"><b id="dropName">Toque para escolher o PDF</b><span id="dropSub">ou arraste o arquivo para cá</span></label>
+        <div class="card-h"><h2>Enviar PDF</h2></div>
+        <p class="sub">Até 100 MB. O título aparece como nome do conteúdo para as alunas.</p>
+        <label class="drop" id="drop" for="file">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 16V4m0 0l-4 4m4-4l4 4"/><path d="M4 16v3a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-3"/></svg>
+          <b id="dropName">Escolher arquivo PDF</b><span id="dropSub">ou arraste para cá</span>
+        </label>
         <input type="file" id="file" accept="application/pdf" hidden>
-        <input type="text" id="title" placeholder="Título (ex.: Módulo 1)" maxlength="60" style="margin-bottom:12px">
-        <button class="btn gold full" id="btnUp">Enviar</button>
+        <div class="field"><label class="lb" for="title">Título</label><input type="text" id="title" placeholder="Ex.: Módulo 1" maxlength="60"></div>
+        <button class="btn primary full" id="btnUp">Enviar PDF</button>
         <progress id="prog" value="0" max="100" hidden></progress>
         <p id="upMsg" class="msg"></p>
       </section>
 
       <section class="card">
-        <h2>Meus PDFs</h2>
-        <p class="hint">Para apagar um PDF, use o botão ao lado dele.</p>
-        <div id="docs" class="list" style="margin-top:0;border:0"><p class="empty">Carregando...</p></div>
+        <div class="card-h"><h2>Meus PDFs</h2></div>
+        <p class="sub">Para remover um conteúdo, use o botão ao lado dele.</p>
+        <div id="docs" class="list"><p class="empty">Carregando...</p></div>
       </section>
     </div>
   </main>
@@ -264,7 +299,7 @@ $("btnAdd").onclick = async () => {
       await batch.commit();
     }
     chips = []; drawChips();
-    toast(`✔ ${novos.length} acesso(s) liberado(s)` + (ja ? ` · ${ja} já tinha(m)` : ""));
+    toast(`${novos.length} acesso(s) liberado(s)` + (ja ? ` · ${ja} já tinha(m)` : ""));
     await loadEmails();
   } catch (e) { console.error(e); toast("Erro ao salvar: " + (e.code || e.message), true); drawChips(); }
 };
@@ -273,7 +308,7 @@ $("btnAdd").onclick = async () => {
 function drawEmails() {
   const q = $("filter").value.trim().toLowerCase();
   const items = allEmails.filter(e => e.includes(q));
-  $("count").textContent = allEmails.length + (allEmails.length === 1 ? " pessoa" : " pessoas");
+  $("count").textContent = allEmails.length;
   const box = $("emails"); box.innerHTML = "";
   if (!items.length) { box.innerHTML = '<p class="empty"></p>'; box.firstChild.textContent = allEmails.length ? "Nenhum resultado." : "Ninguém liberado ainda."; }
   items.forEach(e => {
@@ -373,8 +408,8 @@ $("btnUp").onclick = async () => {
       const pc = (written / total) * 100; $("prog").value = pc; upMsg("Enviando... " + Math.round(pc) + "%");
     }
     await setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() });  // só publica no fim
-    upMsg("✔ PDF salvo na nuvem!", "ok");
-    $("title").value = ""; $("file").value = ""; $("dropName").textContent = "Toque para escolher o PDF"; $("dropSub").textContent = "ou arraste o arquivo para cá";
+    upMsg("PDF salvo na nuvem!", "ok");
+    $("title").value = ""; $("file").value = ""; $("dropName").textContent = "Escolher arquivo PDF"; $("dropSub").textContent = "ou arraste para cá";
     loadDocs();
   } catch (e) {
     console.error(e);

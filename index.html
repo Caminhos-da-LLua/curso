@@ -139,39 +139,6 @@
   #shield div{display:grid;justify-items:center;gap:14px;font-style:italic;color:var(--mute);max-width:32ch}
   #shield .moon{width:72px;height:72px;animation:none}
 
-  /* ---------- Admin ---------- */
-  input{-webkit-user-select:text;user-select:text}
-  .sr{position:absolute;width:1px;height:1px;opacity:0;overflow:hidden}
-  .sr:focus-visible+*,label.btn:has(+ .sr:focus-visible){outline:2px solid var(--gold-soft)}
-  .admin{max-width:720px;margin:0 auto clamp(28px,5vw,44px);padding:18px 20px 8px;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.03);text-align:left}
-  .admin-head,.dlg-head{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:12px}
-  .admin h3,.dlg-head h3{margin:0;font:600 14px var(--title);letter-spacing:.12em;color:var(--gold-soft)}
-  .admin-actions{display:flex;flex-wrap:wrap;gap:10px}
-  .btn.solid{background:var(--gold);color:#1b1030;border-color:var(--gold)}
-  .btn.sm{min-height:32px;padding:0 12px;font-size:11px}
-  .btn.danger{color:#ff9fb2;border-color:rgba(255,159,178,.45)}
-  .btn:disabled{opacity:.6;cursor:progress}
-  .rows{list-style:none;margin:14px 0 0;padding:0}
-  .row{display:flex;align-items:center;gap:12px;padding:10px 0;border-top:1px solid var(--line)}
-  .row .info{flex:1;min-width:0}
-  .t{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .s{font-size:15px;color:var(--mute)}
-  .pill{padding:2px 10px;border-radius:999px;background:var(--gold);color:#1b1030;font:700 10px var(--title);letter-spacing:.12em}
-  dialog{width:min(480px,calc(100% - 32px));max-height:calc(100dvh - 48px);padding:0;border:1px solid var(--gold-line);border-radius:18px;
-         color:var(--ink);background:var(--bg2);box-shadow:0 20px 60px rgba(0,0,0,.6);text-align:left}
-  dialog[open]{display:flex;flex-direction:column}
-  dialog::backdrop{background:rgba(8,4,18,.72);backdrop-filter:blur(3px)}
-  .dlg-head{padding:16px 20px;border-bottom:1px solid var(--line);flex-wrap:nowrap}
-  .dlg-body{padding:6px 20px 20px;overflow:auto}
-  .lab{display:block;margin:14px 0 6px;font:600 12px var(--title);letter-spacing:.1em;color:var(--mute)}
-  .field{width:100%;min-height:46px;padding:0 14px;border-radius:12px;border:1px solid var(--gold-line);background:rgba(255,255,255,.05);color:var(--ink);font:inherit}
-  .pick,.addrow{display:flex;align-items:center;gap:12px}
-  .pick .s{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .dlg-body .err{margin:10px 0 0;min-height:0}
-  #upBar{width:100%;height:8px;margin-top:16px;accent-color:var(--gold)}
-  #upGo{margin-top:16px;width:100%;justify-content:center}
-  .addrow .field{flex:1;min-width:0}
-
   @media (max-width:720px){ .who{display:none} }
   @media (max-width:520px){ body{font-size:18px} .moon{width:96px;height:96px} .grid{grid-template-columns:repeat(2,1fr)} .brand{font-size:13px} }
   @media (max-width:420px){ .btn .lbl{display:none} .btn{padding:0 14px} }
@@ -221,16 +188,6 @@
     </div>
   </header>
   <main class="wrap">
-    <section class="admin" id="admin" hidden aria-label="Administração">
-      <div class="admin-head">
-        <h3>Administração</h3>
-        <div class="admin-actions">
-          <button class="btn solid" id="btnUpload" type="button">Enviar arquivo</button>
-          <button class="btn" id="btnAccess" type="button">Acessos</button>
-        </div>
-      </div>
-      <ul class="rows" id="adminDocs"></ul>
-    </section>
     <p class="hello" id="greet" hidden></p>
     <h2>Seu curso</h2>
     <div class="orn" aria-hidden="true">✦</div>
@@ -250,32 +207,6 @@
   <div id="pages"></div>
   <div class="pageind" id="pageInd" hidden aria-live="polite"></div>
 </div>
-
-<!-- Popup: enviar arquivo -->
-<dialog id="dlgUpload" aria-labelledby="upH">
-  <div class="dlg-head"><h3 id="upH">Enviar arquivo</h3><button class="btn sm" data-close type="button" aria-label="Fechar">Fechar</button></div>
-  <div class="dlg-body">
-    <label class="lab" for="upTitle">Nome do conteúdo</label>
-    <input class="field" id="upTitle" maxlength="80" autocomplete="off" placeholder="Ex.: Aula 1 – Fases da Lua">
-    <span class="lab">Arquivo PDF</span>
-    <div class="pick"><label class="btn" for="upFile">Escolher PDF</label><span class="s" id="upName">Nenhum arquivo escolhido</span></div>
-    <input class="sr" id="upFile" type="file" accept="application/pdf,.pdf">
-    <progress id="upBar" max="100" value="0" hidden></progress>
-    <p class="err" id="upMsg" role="alert"></p>
-    <button class="btn solid" id="upGo" type="button">Enviar</button>
-  </div>
-</dialog>
-
-<!-- Popup: acessos -->
-<dialog id="dlgAccess" aria-labelledby="acH">
-  <div class="dlg-head"><div><h3 id="acH">Acessos</h3><div class="s" id="acCount"></div></div><button class="btn sm" data-close type="button" aria-label="Fechar">Fechar</button></div>
-  <div class="dlg-body">
-    <label class="lab" for="acEmail">Liberar novo e-mail</label>
-    <div class="addrow"><input class="field" id="acEmail" type="email" autocomplete="off" placeholder="nome@gmail.com"><button class="btn solid" id="acAdd" type="button">Liberar</button></div>
-    <p class="err" id="acMsg" role="alert"></p>
-    <ul class="rows" id="acList"></ul>
-  </div>
-</dialog>
 
 <div id="shield"><div><svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg><span>O conteúdo fica oculto enquanto você estiver fora desta janela.<br>Volte para continuar.</span></div></div>
 
@@ -300,8 +231,7 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, startAfter, limit,
-  setDoc, deleteDoc, writeBatch, serverTimestamp, Bytes }
+import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, startAfter, limit }
   from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
 // ====== Configuração do projeto Firebase ======
@@ -366,12 +296,11 @@ $("btnBack").onclick = () => { closeDoc(); show("home"); };
 
 onAuthStateChanged(auth, async user => {
   closeDoc();
-  if (!user) { bytesCache.clear(); rememberUser(null); $("admin").hidden = true; window.__admin = false; show("login"); return; }
+  if (!user) { bytesCache.clear(); rememberUser(null); show("login"); return; }
   if ($("home").hidden) show("loader");          // feedback imediato logo depois do login
   try {
     const email = (user.email || "").toLowerCase();
     const isAdmin = ADMINS.includes(email);
-    window.__admin = isAdmin; $("admin").hidden = !isAdmin;
     const listP = loadList();                    // a lista carrega ao mesmo tempo que o acesso é conferido
     const isAllowed = isAdmin || await getDoc(doc(db, "allowed", email)).then(s => s.exists()).catch(() => false);
     const ok = user.emailVerified && isAllowed;
@@ -414,7 +343,6 @@ async function loadList() {
     return;
   }
   list.innerHTML = "";
-  renderAdminDocs(snap);
   if (snap.empty) {
     $("countTxt").textContent = "";
     list.innerHTML = '<div class="empty"><svg aria-hidden="true"><use href="#i-moon"/></svg><span>Em breve, novos conteúdos.</span></div>';
@@ -436,123 +364,6 @@ async function loadList() {
   });
   $("countTxt").textContent = n + (n === 1 ? " conteúdo disponível" : " conteúdos disponíveis");
 }
-
-// ---------- Painel admin ----------
-const CHUNK = 700 * 1024, MAX_MB = 30;
-const fmtMB = b => (b / 1048576).toFixed(1).replace(".", ",") + " MB";
-const fmtDate = ts => ts && ts.toDate ? ts.toDate().toLocaleDateString("pt-BR") : "";
-
-// popups: fecham no botão Fechar, no fundo escuro e no Esc (menos durante um envio)
-document.querySelectorAll("dialog").forEach(d => {
-  d.addEventListener("click", e => { if (!d.dataset.busy && (e.target === d || e.target.closest("[data-close]"))) d.close(); });
-  d.addEventListener("cancel", e => { if (d.dataset.busy) e.preventDefault(); });
-});
-
-// botão que pede um segundo toque para confirmar (evita excluir sem querer)
-function confirmBtn(btn, label, action) {
-  btn.onclick = () => {
-    if (btn.dataset.arm) { clearTimeout(+btn.dataset.arm); delete btn.dataset.arm; btn.disabled = true; action(); return; }
-    btn.textContent = "Confirmar?";
-    btn.dataset.arm = setTimeout(() => { btn.textContent = label; delete btn.dataset.arm; }, 3000);
-  };
-}
-
-// --- conteúdos publicados ---
-function renderAdminDocs(snap) {
-  if (!window.__admin) return;
-  const ul = $("adminDocs"); ul.innerHTML = "";
-  snap.forEach(d => {
-    const x = d.data(), li = document.createElement("li"); li.className = "row";
-    li.innerHTML = '<div class="info"><div class="t"></div><div class="s"></div></div><button class="btn sm danger" type="button">Excluir</button>';
-    li.querySelector(".t").textContent = x.title;
-    li.querySelector(".s").textContent = [fmtMB(x.size || 0), fmtDate(x.createdAt)].filter(Boolean).join(" · ");
-    confirmBtn(li.querySelector("button"), "Excluir", () => removeDoc(d.id));
-    ul.appendChild(li);
-  });
-}
-async function deleteChunks(id) {
-  const snap = await getDocs(collection(db, "documents", id, "chunks"));
-  for (let i = 0; i < snap.docs.length; i += 400) {
-    const b = writeBatch(db); snap.docs.slice(i, i + 400).forEach(c => b.delete(c.ref)); await b.commit();
-  }
-}
-async function removeDoc(id) {
-  try { await deleteChunks(id); await deleteDoc(doc(db, "documents", id)); }
-  catch (e) { console.error(e); alert("Não foi possível excluir. Confira as regras do Firebase."); }
-  bytesCache.delete(id); loadList();
-}
-
-// --- enviar arquivo ---
-$("btnUpload").onclick = () => {
-  $("upTitle").value = ""; $("upFile").value = ""; $("upName").textContent = "Nenhum arquivo escolhido";
-  $("upMsg").textContent = ""; $("upBar").hidden = true; $("dlgUpload").showModal();
-};
-$("upFile").onchange = () => {
-  const f = $("upFile").files[0];
-  $("upName").textContent = f ? f.name : "Nenhum arquivo escolhido";
-  if (f && !$("upTitle").value) $("upTitle").value = f.name.replace(/\.pdf$/i, "");
-};
-$("upGo").onclick = async () => {
-  const f = $("upFile").files[0], title = $("upTitle").value.trim(), msg = $("upMsg"), dlg = $("dlgUpload");
-  const fail = t => { msg.textContent = t; };
-  msg.textContent = "";
-  if (!title) return fail("Dê um nome ao conteúdo.");
-  if (!f) return fail("Escolha um arquivo PDF.");
-  if (f.size > MAX_MB * 1048576) return fail("O arquivo passa de " + MAX_MB + " MB.");
-  const id = doc(collection(db, "documents")).id;
-  $("upGo").disabled = true; dlg.dataset.busy = "1"; $("upBar").value = 0; $("upBar").hidden = false;
-  try {
-    const buf = new Uint8Array(await f.arrayBuffer());
-    if (String.fromCharCode(...buf.slice(0, 4)) !== "%PDF") throw new Error("not-pdf");
-    const total = Math.ceil(buf.length / CHUNK);
-    for (let n = 0; n < total; n += 4) {                       // 4 pedaços por lote
-      const b = writeBatch(db), end = Math.min(n + 4, total);
-      for (let k = n; k < end; k++)
-        b.set(doc(db, "documents", id, "chunks", String(k).padStart(4, "0")),
-              { n: k, data: Bytes.fromUint8Array(buf.slice(k * CHUNK, (k + 1) * CHUNK)) });
-      await b.commit();
-      $("upBar").value = Math.round(end / total * 100);
-    }
-    // o registro principal vai por último: o conteúdo só aparece na lista quando está completo
-    await setDoc(doc(db, "documents", id), { title, size: buf.length, createdAt: serverTimestamp(), by: window.__email });
-    dlg.close(); loadList();
-  } catch (e) {
-    console.error(e);
-    fail(e.message === "not-pdf" ? "Este arquivo não é um PDF válido." : "Não foi possível enviar. Confira sua conexão e as regras do Firebase.");
-    deleteChunks(id).catch(() => {});                           // limpa o que chegou a ser enviado
-  } finally { $("upGo").disabled = false; delete dlg.dataset.busy; $("upBar").hidden = true; }
-};
-
-// --- acessos ---
-async function loadAccess() {
-  const ul = $("acList"); ul.innerHTML = '<li class="s">Carregando…</li>';
-  let emails;
-  try { emails = (await getDocs(collection(db, "allowed"))).docs.map(d => d.id.toLowerCase()); }
-  catch (e) { console.error(e); ul.innerHTML = '<li class="s">Não foi possível carregar a lista.</li>'; return; }
-  const guests = emails.filter(e => !ADMINS.includes(e)).sort();
-  const total = ADMINS.length + guests.length;
-  $("acCount").textContent = total + (total === 1 ? " pessoa" : " pessoas");
-  ul.innerHTML = "";
-  const addRow = (email, admin) => {
-    const li = document.createElement("li"); li.className = "row";
-    li.innerHTML = '<div class="info"><div class="t"></div></div>' + (admin ? '<span class="pill">Admin</span>' : '<button class="btn sm danger" type="button">Remover</button>');
-    li.querySelector(".t").textContent = email;
-    if (!admin) confirmBtn(li.querySelector("button"), "Remover", async () => {
-      try { await deleteDoc(doc(db, "allowed", email)); } catch (e) { console.error(e); $("acMsg").textContent = "Não foi possível remover."; }
-      loadAccess();
-    });
-    ul.appendChild(li);
-  };
-  ADMINS.forEach(e => addRow(e, true)); guests.forEach(e => addRow(e, false));
-}
-$("btnAccess").onclick = () => { $("acMsg").textContent = ""; $("acEmail").value = ""; $("dlgAccess").showModal(); loadAccess(); };
-$("acAdd").onclick = async () => {
-  const email = $("acEmail").value.trim().toLowerCase(), msg = $("acMsg"); msg.textContent = "";
-  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { msg.textContent = "Digite um e-mail válido."; return; }
-  try { await setDoc(doc(db, "allowed", email), { addedAt: serverTimestamp(), by: window.__email }); $("acEmail").value = ""; loadAccess(); }
-  catch (e) { console.error(e); msg.textContent = "Não foi possível liberar. Confira as regras do Firebase."; }
-};
-$("acEmail").onkeydown = e => { if (e.key === "Enter") $("acAdd").click(); };
 
 // ---------- Leitor protegido ----------
 async function openDoc(data) {
@@ -659,13 +470,12 @@ async function render(email, meta) {
 }
 
 // ---------- Dissuasores ----------
-document.addEventListener("contextmenu", e => { if (!inField(e)) e.preventDefault(); });
+document.addEventListener("contextmenu", e => e.preventDefault());
 document.addEventListener("dragstart", e => e.preventDefault());
-const inField = e => e.target.closest && e.target.closest("input,textarea");
-document.addEventListener("copy", e => { if (!inField(e)) e.preventDefault(); });
+document.addEventListener("copy", e => e.preventDefault());
 document.addEventListener("keydown", e => {
   const k = e.key.toLowerCase();
-  if ((e.ctrlKey || e.metaKey) && ["s","p","u","c","a"].includes(k) && !(inField(e) && ["c","a"].includes(k))) e.preventDefault();
+  if ((e.ctrlKey || e.metaKey) && ["s","p","u","c","a"].includes(k)) e.preventDefault();
   if (e.key === "F12" || e.key === "PrintScreen") { e.preventDefault(); navigator.clipboard?.writeText(""); }
 });
 const shield = $("shield");

@@ -214,7 +214,9 @@ let allEmails = [], chips = [];
 const selected = new Set();
 
 async function loadEmails() {
-  const snap = await getDocs(collection(db, "allowed"));
+  let snap;
+  try { snap = await getDocs(collection(db, "allowed")); }
+  catch (e) { console.error(e); $("emails").innerHTML = '<p class="empty"></p>'; $("emails").firstChild.textContent = "Erro ao carregar a lista: " + (e.code || e.message); return; }
   allEmails = snap.docs.map(d => d.id).sort();
   [...selected].forEach(e => { if (!allEmails.includes(e)) selected.delete(e); });
   drawEmails();
@@ -264,7 +266,7 @@ $("btnAdd").onclick = async () => {
     chips = []; drawChips();
     toast(`✔ ${novos.length} acesso(s) liberado(s)` + (ja ? ` · ${ja} já tinha(m)` : ""));
     await loadEmails();
-  } catch (e) { console.error(e); toast("Não foi possível salvar.", true); drawChips(); }
+  } catch (e) { console.error(e); toast("Erro ao salvar: " + (e.code || e.message), true); drawChips(); }
 };
 
 // --- lista de quem tem acesso ---
@@ -313,7 +315,7 @@ async function removeEmails(list) {
     list.forEach(e => selected.delete(e));
     toast("Acesso removido.");
     await loadEmails();
-  } catch (e) { console.error(e); toast("Não foi possível remover.", true); }
+  } catch (e) { console.error(e); toast("Erro ao remover: " + (e.code || e.message), true); }
 }
 
 // =====================================================================

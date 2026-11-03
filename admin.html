@@ -8,7 +8,14 @@
 <title>Admin · Caminhos da Lua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://apis.google.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap"></noscript>
 <style>
   :root{
     --bg:#f4f3f9; --card:#ffffff; --line:#e7e5f1; --hover:#f8f7fd;
@@ -85,6 +92,7 @@
         background:#fff;color:#1a1833;font-weight:700;font-size:15px;cursor:pointer;transition:background .15s,transform .1s}
   .gbtn:hover{background:#eeedf6}
   .gbtn:active{transform:scale(.98)}
+  .gbtn:disabled{opacity:.75;cursor:progress;transform:none}
   .gbtn svg{width:20px;height:20px}
   .lerr{min-height:20px;color:#ff8da1!important;font-size:14px!important;margin:0!important}
   .login-card small{color:var(--night-mute)}
@@ -267,7 +275,7 @@
     <div><h1>Painel admin</h1><p>Caminhos da Lua</p></div>
     <button class="gbtn" id="btnLogin" type="button">
       <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg>
-      Entrar com Google
+      <span id="loginTxt">Entrar com Google</span>
     </button>
     <p id="msg" class="lerr" role="alert"></p>
     <small>Acesso restrito a administradores.</small>
@@ -344,7 +352,7 @@
             <svg class="ic" aria-hidden="true"><use href="#upload"/></svg>
             <b id="dropName">Escolher arquivo PDF</b><span id="dropSub">ou arraste para cá</span>
           </label>
-          <input type="file" id="file" class="sr" accept="application/pdf">
+          <input type="file" id="file" class="sr" accept="application/pdf,.pdf">
           <div class="field"><label class="lb" for="title">Título</label><input type="text" id="title" placeholder="Ex.: Módulo 1" maxlength="60" autocomplete="off"></div>
           <button class="btn primary full" id="btnUp" type="button">Enviar PDF</button>
           <progress id="prog" value="0" max="100" hidden></progress>
@@ -386,6 +394,25 @@
   </form>
 </dialog>
 
+<script>
+// Entrada instantânea: se esta pessoa já entrou neste aparelho, mostra o painel na hora.
+// É só visual; a conferência de verdade e o acesso aos dados continuam no Firebase.
+(function () {
+  try {
+    var h = JSON.parse(localStorage.getItem("lua_adm") || "null");
+    if (!h || !h.e) return;
+    document.getElementById("login").hidden = true;
+    document.getElementById("app").hidden = false;
+    document.getElementById("who").textContent = h.e;
+    document.querySelectorAll("[data-me]").forEach(function (m) { m.textContent = h.e[0].toUpperCase(); m.title = h.e; });
+    if (location.hash === "#pdfs") {
+      document.getElementById("tab-people").hidden = true;
+      document.getElementById("tab-pdfs").hidden = false;
+      document.querySelectorAll("[data-tab]").forEach(function (b) { b.classList.toggle("on", b.dataset.tab === "pdfs"); });
+    }
+  } catch (e) {}
+})();
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
@@ -421,6 +448,7 @@ function toast(t, bad) {
 const dlg = $("dlg");
 dlg.addEventListener("click", e => { if (e.target === dlg) dlg.close("cancel"); });
 function ask({ title, text, ok = "Confirmar", danger = true }) {
+  if (typeof dlg.showModal !== "function") return Promise.resolve(confirm(title + "\n" + text));
   $("dlgTitle").textContent = title;
   $("dlgText").textContent = text;
   const b = $("dlgOk"); b.textContent = ok; b.className = "btn " + (danger ? "danger" : "primary");
@@ -454,16 +482,23 @@ const fmtDate = ts => {
 };
 
 // ---------- Login ----------
-$("btnLogin").onclick = () => signInWithPopup(auth, new GoogleAuthProvider())
-  .catch(e => { if (!String(e.code).includes("popup")) $("msg").textContent = "Não foi possível entrar."; });
+const loginBusy = on => { $("btnLogin").disabled = on; $("loginTxt").textContent = on ? "Entrando…" : "Entrar com Google"; };
+$("btnLogin").onclick = () => {
+  $("msg").textContent = ""; loginBusy(true);
+  signInWithPopup(auth, new GoogleAuthProvider())
+    .catch(e => { if (!String(e.code).includes("popup")) $("msg").textContent = "Não foi possível entrar."; })
+    .finally(() => loginBusy(false));
+};
+const rememberAdmin = email => { try { email ? localStorage.setItem("lua_adm", JSON.stringify({ e: email })) : localStorage.removeItem("lua_adm"); } catch (e) {} };
 document.querySelectorAll("[data-out]").forEach(b => b.onclick = () => signOut(auth));
 
 onAuthStateChanged(auth, async user => {
-  if (!user) { $("app").hidden = true; $("login").hidden = false; return; }
+  if (!user) { rememberAdmin(null); $("app").hidden = true; $("login").hidden = false; return; }
   const email = (user.email || "").toLowerCase();
   if (!user.emailVerified || !ADMINS.includes(email)) {
-    await signOut(auth); $("msg").textContent = "Este e-mail não é administrador."; return;
+    rememberAdmin(null); await signOut(auth); $("msg").textContent = "Este e-mail não é administrador."; return;
   }
+  rememberAdmin(email);
   $("msg").textContent = ""; $("login").hidden = true; $("app").hidden = false;
   $("who").textContent = email;
   document.querySelectorAll("[data-me]").forEach(e => { e.textContent = email[0].toUpperCase(); e.title = email; });
@@ -617,18 +652,26 @@ async function removeEmails(list) {
 // =====================================================================
 //  PDFs (salvos em pedaços no Firestore)
 // =====================================================================
-const MAX_MB = 100, CHUNK = 800000, PER_BATCH = 8, FREE_MB = 1000;
+const MAX_MB = 100, CHUNK = 800000, PER_BATCH = 4, FREE_MB = 1000;
 const chunkId = i => String(i).padStart(6, "0");
 const fmtMB = b => (b / 1048576).toFixed(1) + " MB";
 let usedBytes = 0;
 
+const DROP_SUB = matchMedia("(pointer:coarse)").matches ? "toque para escolher" : "ou arraste para cá";
+$("dropSub").textContent = DROP_SUB;
+let pickedFile = null, autoTitle = "";
 function pickFile(f) {
   if (!f) return;
-  const dt = new DataTransfer(); dt.items.add(f); $("file").files = dt.files;
+  pickedFile = f;                       // guardamos o arquivo aqui (não depende do campo, que no celular é instável)
   $("dropName").textContent = f.name;
   $("dropSub").textContent = fmtMB(f.size) + " · toque para trocar";
   $("drop").classList.add("has");
-  if (!$("title").value.trim()) $("title").value = f.name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 60);
+  const t = $("title").value.trim();
+  if (!t || t === autoTitle) {
+    autoTitle = f.name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 60);
+    $("title").value = autoTitle;
+  }
+  upMsg("");
 }
 $("file").onchange = () => pickFile($("file").files[0]);
 const drop = $("drop");
@@ -646,40 +689,90 @@ async function deleteChunks(id, count) {
   }
 }
 
+// Lê um pedaço do arquivo (com alternativa para navegadores de celular mais antigos)
+const readBlob = b => b.arrayBuffer ? b.arrayBuffer()
+  : new Promise((ok, no) => { const r = new FileReader(); r.onload = () => ok(r.result); r.onerror = () => no(r.error); r.readAsArrayBuffer(b); });
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+
+// No celular o tipo do arquivo costuma vir vazio; por isso olhamos o começo do arquivo ("%PDF")
+async function looksPdf(file) {
+  try {
+    const head = new Uint8Array(await readBlob(file.slice(0, 1024)));
+    return new TextDecoder("latin1").decode(head).includes("%PDF");
+  } catch (e) {
+    return file.type === "application/pdf" || /\.pdf$/i.test(file.name);
+  }
+}
+
+// Grava um grupo de pedaços; se a rede falhar, tenta de novo (o lote é refeito a cada tentativa)
+async function commitChunks(parentId, items) {
+  let last;
+  for (let t = 0; t < 4; t++) {
+    try {
+      const batch = writeBatch(db);
+      items.forEach(({ j, buf }) => batch.set(doc(db, "documents", parentId, "chunks", chunkId(j)), { n: j, data: Bytes.fromUint8Array(buf) }));
+      await batch.commit();
+      return;
+    } catch (e) {
+      last = e;
+      if (["permission-denied", "unauthenticated", "invalid-argument", "resource-exhausted"].includes(e.code)) throw e;
+      await sleep(800 * (t + 1));
+    }
+  }
+  throw last;
+}
+
+// Mantém a tela do celular acesa e avisa antes de sair da página durante o envio
+let uploading = false, wakeLock = null;
+async function keepAwake(on) {
+  try {
+    if (on && "wakeLock" in navigator) wakeLock = await navigator.wakeLock.request("screen");
+    else if (!on && wakeLock) { await wakeLock.release(); wakeLock = null; }
+  } catch (e) {}
+}
+document.addEventListener("visibilitychange", () => { if (uploading && !document.hidden) keepAwake(true); });
+addEventListener("beforeunload", e => { if (uploading) { e.preventDefault(); e.returnValue = ""; } });
+
+const upFail = t => { upMsg(t, "err"); $("upMsg").scrollIntoView({ block: "center", behavior: "smooth" }); };
+
 $("btnUp").onclick = async () => {
-  const file = $("file").files[0], title = $("title").value.trim();
-  if (!file || file.type !== "application/pdf") return upMsg("Escolha um arquivo PDF.", "err");
-  if (!title) return upMsg("Informe um título.", "err");
-  if (file.size > MAX_MB * 1048576) return upMsg(`Tamanho máximo: ${MAX_MB} MB.`, "err");
+  if (uploading) return;
+  const file = pickedFile, title = $("title").value.trim();
+  if (!file) return upFail("Escolha um arquivo PDF.");
+  if (!(await looksPdf(file))) return upFail("Este arquivo não parece ser um PDF.");
+  if (!title) { $("title").focus(); return upFail("Informe um título."); }
+  if (file.size > MAX_MB * 1048576) return upFail(`Tamanho máximo: ${MAX_MB} MB.`);
   if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95 &&
       !(await ask({ title: "Perto do limite de armazenamento", text: "Este envio chega perto do limite gratuito de ~1 GB. Enviar mesmo assim?", ok: "Enviar mesmo assim", danger: false }))) return;
 
   const parent = doc(collection(db, "documents"));
   const total = Math.ceil(file.size / CHUNK);
   let written = 0;
-  $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true; $("btnUp").textContent = "Enviando…"; upMsg("Enviando... 0%");
+  uploading = true; keepAwake(true);
+  $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true; $("btnUp").textContent = "Enviando…";
+  upMsg("Enviando... 0% · mantenha esta tela aberta");
+  $("prog").scrollIntoView({ block: "center", behavior: "smooth" });
   try {
     for (let i = 0; i < total; i += PER_BATCH) {
-      const batch = writeBatch(db), end = Math.min(i + PER_BATCH, total);
-      for (let j = i; j < end; j++) {
-        const buf = new Uint8Array(await file.slice(j * CHUNK, (j + 1) * CHUNK).arrayBuffer());
-        batch.set(doc(db, "documents", parent.id, "chunks", chunkId(j)), { n: j, data: Bytes.fromUint8Array(buf) });
-      }
-      await batch.commit();
-      written = end;
-      const pc = (written / total) * 100; $("prog").value = pc; upMsg("Enviando... " + Math.round(pc) + "%");
+      const end = Math.min(i + PER_BATCH, total), items = [];
+      for (let j = i; j < end; j++) items.push({ j, buf: new Uint8Array(await readBlob(file.slice(j * CHUNK, (j + 1) * CHUNK))) });
+      await commitChunks(parent.id, items);
+      written = end; bumpIdle();
+      const pc = (written / total) * 100; $("prog").value = pc; upMsg("Enviando... " + Math.round(pc) + "% · mantenha esta tela aberta");
     }
     await setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() });  // só publica no fim
-    upMsg("PDF salvo na nuvem!", "ok");
-    $("title").value = ""; $("file").value = ""; $("dropName").textContent = "Escolher arquivo PDF"; $("dropSub").textContent = "ou arraste para cá";
+    upMsg("PDF salvo na nuvem!", "ok"); toast("PDF enviado!");
+    $("title").value = ""; autoTitle = ""; $("file").value = ""; pickedFile = null;
+    $("dropName").textContent = "Escolher arquivo PDF"; $("dropSub").textContent = DROP_SUB;
     $("drop").classList.remove("has");
     loadDocs();
   } catch (e) {
     console.error(e);
     upMsg("Erro no envio. Limpando o que foi enviado...", "err");
     await deleteChunks(parent.id, Math.min(written + PER_BATCH, total)).catch(() => {});
-    upMsg("Erro no envio (" + (e.code || e.message) + "). Tente de novo.", "err");
+    upFail("Erro no envio (" + (e.code || e.message) + "). Tente de novo.");
   }
+  uploading = false; keepAwake(false);
   $("btnUp").disabled = false; $("btnUp").textContent = "Enviar PDF"; $("prog").hidden = true;
 };
 

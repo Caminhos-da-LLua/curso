@@ -109,7 +109,7 @@
   .mtop-r{display:flex;align-items:center;gap:4px}
   .mtop .av{width:34px;height:34px;background:var(--accent-soft);color:var(--accent)}
 
-  .bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(3,1fr);gap:4px;
+  .bnav{position:fixed;left:0;right:0;bottom:0;z-index:30;background:var(--card);border-top:1px solid var(--line);display:grid;grid-template-columns:1fr 1fr;gap:4px;
         padding:6px max(8px,env(safe-area-inset-right)) calc(6px + env(safe-area-inset-bottom)) max(8px,env(safe-area-inset-left))}
   .bn{appearance:none;border:0;background:none;display:grid;justify-items:center;gap:3px;padding:4px 0;min-height:54px;font-size:12px;font-weight:600;color:var(--mute);cursor:pointer}
   .bn .pill{width:56px;height:30px;border-radius:999px;display:grid;place-items:center;transition:background .2s,color .2s}
@@ -117,7 +117,9 @@
   .bn.on .pill{background:var(--accent-soft)}
 
   .main{width:100%;max-width:1120px;margin:0 auto;padding:22px max(16px,env(safe-area-inset-right)) calc(96px + env(safe-area-inset-bottom)) max(16px,env(safe-area-inset-left))}
+  .page-top{display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:20px}
   .page-h{margin-bottom:20px;display:grid;gap:6px}
+  .page-top .page-h{margin:0}
   .page-h p{color:var(--mute)}
   .grid2{display:grid;gap:18px;align-items:start}
   .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:20px;box-shadow:var(--shadow);min-width:0}
@@ -137,7 +139,6 @@
     .nav-i.on{background:rgba(255,255,255,.1);color:#fff}
     .nav-i.on .ic{color:var(--moon)}
     .nav-i span{flex:1}
-    .nav-sep{height:1px;margin:8px 6px;background:rgba(255,255,255,.1)}
     .nav-i .n{font-style:normal;font-size:12px;font-weight:700;min-width:26px;text-align:center;padding:2px 8px;border-radius:999px;background:rgba(255,255,255,.1);font-variant-numeric:tabular-nums}
     .side-foot{margin-top:auto;display:flex;align-items:center;gap:10px;padding-top:16px;border-top:1px solid rgba(255,255,255,.1)}
     .side-foot .av{background:rgba(255,255,255,.1);color:var(--moon)}
@@ -244,7 +245,7 @@
   .acc-h{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:20px 20px 0}
   .acc-h div{display:grid;gap:2px}
   .acc-h p{color:var(--mute);font-size:14px}
-  .acc-body{flex:1;min-height:140px;overflow:auto;padding:0 20px}
+  .acc-body{flex:1;min-height:140px;overflow:auto;padding:0 20px calc(18px + env(safe-area-inset-bottom))}
   .acc-body .row{cursor:default}
   .acc-body .row:hover{background:transparent}
   .grp{display:flex;justify-content:space-between;margin:16px 0 4px;font-size:13px;font-weight:700;color:var(--mute)}
@@ -308,10 +309,8 @@
       <div><b>Caminhos da Lua</b><small>Painel admin</small></div>
     </div>
     <nav class="nav" aria-label="Seções">
-      <button class="nav-i on" data-tab="people" type="button"><svg class="ic" aria-hidden="true"><use href="#users"/></svg><span>Alunas</span><em class="n" id="navPeople">0</em></button>
+      <button class="nav-i on" data-tab="people" type="button"><svg class="ic" aria-hidden="true"><use href="#users"/></svg><span>Inscritos</span><em class="n" id="navPeople">0</em></button>
       <button class="nav-i" data-tab="pdfs" type="button"><svg class="ic" aria-hidden="true"><use href="#file"/></svg><span>PDFs</span><em class="n" id="navPdfs">0</em></button>
-      <div class="nav-sep" role="separator"></div>
-      <button class="nav-i" id="btnAcc" type="button"><svg class="ic" aria-hidden="true"><use href="#lock"/></svg><span>Acessos</span><em class="n" id="navAcc">0</em></button>
     </nav>
     <div class="side-foot">
       <span class="av" data-me></span>
@@ -335,14 +334,17 @@
   </header>
 
   <main class="main">
-    <!-- ===== Alunas ===== -->
+    <!-- ===== Inscritos ===== -->
     <section id="tab-people">
-      <div class="page-h"><h1>Alunas</h1><p>Libere ou remova o acesso ao conteúdo pelo e-mail Google.</p></div>
+      <div class="page-top">
+        <div class="page-h"><h1>Inscritos</h1><p>Libere ou remova o acesso ao conteúdo pelo e-mail Google.</p></div>
+        <button class="btn" id="btnAcc" type="button"><svg class="ic" aria-hidden="true"><use href="#lock"/></svg>Acessos <span class="badge" id="navAcc">0</span></button>
+      </div>
       <div class="grid2">
         <section class="card sticky">
           <div class="card-h"><h2>Liberar acesso</h2></div>
           <p class="sub">Digite o e-mail e aperte Enter. Você pode colar vários de uma vez.</p>
-          <div class="chipbox" id="chipbox"><input type="text" id="emailIn" placeholder="nome@gmail.com" aria-label="E-mail da aluna" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div>
+          <div class="chipbox" id="chipbox"><input type="text" id="emailIn" placeholder="nome@gmail.com" aria-label="E-mail do inscrito" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" inputmode="email" enterkeyhint="done"></div>
           <button class="btn primary full" id="btnAdd" type="button" disabled>Liberar acesso</button>
         </section>
 
@@ -353,7 +355,7 @@
             <span id="selTxt"></span>
             <span style="display:flex;gap:2px"><button class="btn sm" id="btnNone" type="button">Cancelar</button><button class="btn sm red" id="btnDelSel" type="button">Remover</button></span>
           </div>
-          <label class="selall"><input type="checkbox" id="selAll"> Selecionar todas</label>
+          <label class="selall"><input type="checkbox" id="selAll"> Selecionar todos</label>
           <div class="list" id="emails"><div class="skel"></div><div class="skel"></div><div class="skel"></div></div>
         </section>
       </div>
@@ -361,11 +363,11 @@
 
     <!-- ===== PDFs ===== -->
     <section id="tab-pdfs" hidden>
-      <div class="page-h"><h1>PDFs</h1><p>Envie os conteúdos que as alunas vão ver.</p></div>
+      <div class="page-h"><h1>PDFs</h1><p>Envie os conteúdos que os inscritos vão ver.</p></div>
       <div class="grid2">
         <section class="card sticky">
           <div class="card-h"><h2>Enviar PDF</h2></div>
-          <p class="sub">Até 100 MB. O título aparece como nome do conteúdo para as alunas.</p>
+          <p class="sub">Até 100 MB. O título aparece como nome do conteúdo para os inscritos.</p>
           <div class="drop" id="drop" role="button" tabindex="0" aria-label="Escolher arquivo PDF">
             <svg class="ic" aria-hidden="true"><use href="#upload"/></svg>
             <b id="dropName">Escolher arquivo PDF</b><span id="dropSub">ou arraste para cá</span>
@@ -392,9 +394,8 @@
 
   <!-- Menu inferior (celular) -->
   <nav class="bnav" aria-label="Seções">
-    <button class="bn on" data-tab="people" type="button"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#users"/></svg></span>Alunas</button>
+    <button class="bn on" data-tab="people" type="button"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#users"/></svg></span>Inscritos</button>
     <button class="bn" data-tab="pdfs" type="button"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#file"/></svg></span>PDFs</button>
-    <button class="bn" id="btnAccM" type="button"><span class="pill"><svg class="ic" aria-hidden="true"><use href="#lock"/></svg></span>Acessos</button>
   </nav>
 </div>
 
@@ -408,7 +409,6 @@
   </div>
   <div class="search"><svg class="ic" aria-hidden="true"><use href="#search"/></svg><input type="search" id="accFilter" placeholder="Buscar e-mail" aria-label="Buscar e-mail" autocomplete="off"></div>
   <div class="acc-body" id="accList"></div>
-  <div class="acc-foot"><button class="btn primary" id="accManage" type="button">Gerenciar alunas</button></div>
 </dialog>
 
 <!-- Confirmação -->
@@ -473,6 +473,10 @@ function toast(t, bad) {
   const e = $("toast"); e.textContent = t; e.className = "show" + (bad ? " bad" : "");
   clearTimeout(toastT); toastT = setTimeout(() => e.className = "", 3200);
 }
+
+// Qualquer erro inesperado aparece na tela (nada falha em silêncio)
+addEventListener("error", e => toast("Erro: " + (e.message || "inesperado"), true));
+addEventListener("unhandledrejection", e => toast("Erro: " + ((e.reason && (e.reason.code || e.reason.message)) || "inesperado"), true));
 
 // Confirmação em diálogo (no lugar do confirm() do navegador)
 const dlg = $("dlg");
@@ -556,7 +560,7 @@ document.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => showTab(b
 showTab(location.hash.slice(1));
 
 // =====================================================================
-//  ALUNAS
+//  INSCRITOS
 // =====================================================================
 let allEmails = [], chips = [], addedAt = new Map();
 const selected = new Set();
@@ -649,7 +653,7 @@ function drawEmails() {
 }
 function drawSel() {
   $("selbar").hidden = selected.size === 0;
-  $("selTxt").textContent = selected.size + (selected.size === 1 ? " selecionada" : " selecionadas");
+  $("selTxt").textContent = selected.size + (selected.size === 1 ? " selecionado" : " selecionados");
 }
 $("filter").oninput = drawEmails;
 $("selAll").onchange = () => {
@@ -687,7 +691,7 @@ const dlgAcc = $("dlgAcc");
 function totalAccess() { return ADMINS.length + allEmails.filter(e => !ADMINS.includes(e)).length; }
 function drawAccess() {
   const q = $("accFilter").value.trim().toLowerCase();
-  const alunas = allEmails.filter(e => !ADMINS.includes(e));
+  const inscritos = allEmails.filter(e => !ADMINS.includes(e));
   const n = totalAccess();
   $("accSub").textContent = n + (n === 1 ? " pessoa pode entrar no site" : " pessoas podem entrar no site");
   const box = $("accList"); box.innerHTML = "";
@@ -709,20 +713,19 @@ function drawAccess() {
     });
     box.append(h, ul); return items.length;
   };
-  const shown = group("Administradores", ADMINS, "Admin") + group("Alunas", alunas);
+  const shown = group("Administradores", ADMINS, "Admin") + group("Inscritos", inscritos);
   if (!shown) emptyBox(box, "search", "Nenhum resultado", "Tente buscar por outro trecho do e-mail.");
 }
 function openAcc() { $("accFilter").value = ""; drawAccess(); dlgAcc.showModal(); loadEmails(); }
-$("btnAcc").onclick = $("btnAccM").onclick = openAcc;
+$("btnAcc").onclick = openAcc;
 $("accFilter").oninput = drawAccess;
 $("accClose").onclick = () => dlgAcc.close();
-$("accManage").onclick = () => { dlgAcc.close(); showTab("people", true); };
 dlgAcc.addEventListener("click", e => { if (e.target === dlgAcc) dlgAcc.close(); });
 
 // =====================================================================
 //  PDFs (salvos em pedaços no Firestore)
 // =====================================================================
-const MAX_MB = 100, CHUNK = 800000, PER_BATCH = 4, FREE_MB = 1000;
+const MAX_MB = 100, CHUNK = 500000, PER_BATCH = 2, FREE_MB = 1000;
 const chunkId = i => String(i).padStart(6, "0");
 const fmtMB = b => (b / 1048576).toFixed(1) + " MB";
 let usedBytes = 0;
@@ -756,7 +759,8 @@ const errTxt = e => ({
   "permission-denied": "sem permissão no Firebase (confira as regras de documents e chunks)",
   "unauthenticated": "sessão expirada, entre de novo",
   "unavailable": "sem conexão com o Firebase",
-  "resource-exhausted": "limite do Firebase atingido"
+  "resource-exhausted": "limite do Firebase atingido",
+  "timeout": "a conexão travou durante o envio"
 }[e.code] || e.code || e.message);
 const upMsg = (t, k) => { const e = $("upMsg"); e.textContent = t || ""; e.className = "msg " + (k || ""); };
 
@@ -814,32 +818,34 @@ addEventListener("beforeunload", e => { if (uploading) { e.preventDefault(); e.r
 
 const upFail = t => { upMsg(t, "err"); $("upMsg").scrollIntoView({ block: "center", behavior: "smooth" }); };
 
+const withTimeout = (p, ms) => Promise.race([p, new Promise((_, no) => setTimeout(() => no(Object.assign(new Error("timeout"), { code: "timeout" })), ms))]);
+
 $("btnUp").onclick = async () => {
   if (uploading) return;
-  const file = pickedFile || $("file").files[0], title = $("title").value.trim();
-  if (!file) return upFail("Escolha um arquivo PDF.");
-  if (!(await looksPdf(file))) return upFail("Este arquivo não parece ser um PDF.");
-  if (!title) { $("title").focus(); return upFail("Informe um título."); }
-  if (file.size > MAX_MB * 1048576) return upFail(`Tamanho máximo: ${MAX_MB} MB.`);
-  if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95 &&
-      !(await ask({ title: "Perto do limite de armazenamento", text: "Este envio chega perto do limite gratuito de ~1 GB. Enviar mesmo assim?", ok: "Enviar mesmo assim", danger: false }))) return;
-
-  const parent = doc(collection(db, "documents"));
-  const total = Math.ceil(file.size / CHUNK);
-  let written = 0;
-  uploading = true; keepAwake(true);
-  $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true; $("btnUp").textContent = "Enviando…";
-  upMsg("Enviando... 0% · mantenha esta tela aberta");
-  $("prog").scrollIntoView({ block: "center", behavior: "smooth" });
+  let parent = null, total = 0, written = 0;
   try {
+    const file = pickedFile || $("file").files[0], title = $("title").value.trim();
+    if (!file) return upFail("Escolha um arquivo PDF.");
+    upMsg("Conferindo o arquivo…");
+    if (!(await looksPdf(file))) return upFail("Este arquivo não parece ser um PDF.");
+    if (!title) { $("title").focus(); return upFail("Informe um título."); }
+    if (file.size > MAX_MB * 1048576) return upFail(`Tamanho máximo: ${MAX_MB} MB.`);
+    if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95 &&
+        !(await ask({ title: "Perto do limite de armazenamento", text: "Este envio chega perto do limite gratuito de ~1 GB. Enviar mesmo assim?", ok: "Enviar mesmo assim", danger: false }))) return upMsg("");
+
+    parent = doc(collection(db, "documents"));
+    total = Math.ceil(file.size / CHUNK);
+    uploading = true; keepAwake(true);
+    $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true; $("btnUp").textContent = "Enviando…";
+    upMsg("Enviando... 0% · mantenha esta tela aberta");
     for (let i = 0; i < total; i += PER_BATCH) {
       const end = Math.min(i + PER_BATCH, total), items = [];
       for (let j = i; j < end; j++) items.push({ j, buf: new Uint8Array(await readBlob(file.slice(j * CHUNK, (j + 1) * CHUNK))) });
-      await commitChunks(parent.id, items);
+      await withTimeout(commitChunks(parent.id, items), 60000);
       written = end; bumpIdle();
       const pc = (written / total) * 100; $("prog").value = pc; upMsg("Enviando... " + Math.round(pc) + "% · mantenha esta tela aberta");
     }
-    await setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() });  // só publica no fim
+    await withTimeout(setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() }), 30000);  // só publica no fim
     upMsg("PDF salvo na nuvem!", "ok"); toast("PDF enviado!");
     $("title").value = ""; autoTitle = ""; $("file").value = ""; pickedFile = null;
     $("dropName").textContent = "Escolher arquivo PDF"; $("dropSub").textContent = DROP_SUB;
@@ -847,12 +853,12 @@ $("btnUp").onclick = async () => {
     loadDocs();
   } catch (e) {
     console.error(e);
-    upMsg("Erro no envio. Limpando o que foi enviado...", "err");
-    await deleteChunks(parent.id, Math.min(written + PER_BATCH, total)).catch(() => {});
     upFail("Erro no envio: " + errTxt(e) + ".");
+    if (parent) deleteChunks(parent.id, Math.min(written + PER_BATCH, total)).catch(() => {});
+  } finally {
+    uploading = false; keepAwake(false);
+    $("btnUp").disabled = false; $("btnUp").textContent = "Enviar PDF"; $("prog").hidden = true;
   }
-  uploading = false; keepAwake(false);
-  $("btnUp").disabled = false; $("btnUp").textContent = "Enviar PDF"; $("prog").hidden = true;
 };
 
 function drawMeter() {
@@ -883,7 +889,7 @@ async function loadDocs() {
     tx.append(t1, t2);
     const b = rmBtn("Apagar", "Apagar " + title);
     b.onclick = async () => {
-      const ok = await ask({ title: "Apagar PDF?", text: `“${title}” será apagado definitivamente e as alunas deixam de ver.`, ok: "Apagar" });
+      const ok = await ask({ title: "Apagar PDF?", text: `“${title}” será apagado definitivamente e os inscritos deixam de ver.`, ok: "Apagar" });
       if (!ok) return;
       b.disabled = true;
       try { await deleteDoc(doc(db, "documents", d.id)); await deleteChunks(d.id, chunks || 0); toast("PDF apagado."); }

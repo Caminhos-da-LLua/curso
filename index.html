@@ -1,0 +1,346 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120b24">
+<meta name="robots" content="noindex">
+<title>Caminhos da Lua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg1:#120b24; --bg2:#1d1238; --bg3:#2a1850;
+    --gold:#d9b86c; --gold-soft:#f0dca4; --ink:#efe8ff; --mute:#a99cc9;
+    --serif:"Cormorant Garamond",Georgia,"Times New Roman",serif;
+    --title:"Cinzel","Trajan Pro",Georgia,serif;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  html,body{margin:0;min-height:100%}
+  body{
+    font-family:var(--serif);font-size:19px;color:var(--ink);
+    background:radial-gradient(ellipse at 50% 0%,var(--bg3) 0%,var(--bg2) 45%,var(--bg1) 100%) fixed;
+    -webkit-user-select:none;user-select:none;-webkit-touch-callout:none;
+    padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left);
+  }
+  #stars{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+  .star{position:absolute;background:var(--gold-soft);border-radius:50%;animation:tw 4s ease-in-out infinite}
+  @keyframes tw{0%,100%{opacity:.15}50%{opacity:.9}}
+  .screen{position:relative;z-index:1;min-height:100vh;min-height:100dvh}
+
+  /* ---------- Login ---------- */
+  .center{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:20px;padding:32px 24px;text-align:center}
+  .moon{width:120px;height:120px;filter:drop-shadow(0 0 22px rgba(240,220,164,.55));animation:float 7s ease-in-out infinite}
+  @keyframes float{50%{transform:translateY(-8px)}}
+  h1{font-family:var(--title);font-weight:600;font-size:clamp(28px,6vw,46px);letter-spacing:.14em;margin:0;text-transform:uppercase;
+     background:linear-gradient(180deg,#fff3cf,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  .sub{font-style:italic;color:var(--mute);font-size:clamp(18px,3.6vw,22px);margin:0}
+  .orn{display:flex;align-items:center;gap:12px;color:var(--gold);width:min(260px,70%)}
+  .orn::before,.orn::after{content:"";flex:1;height:1px;background:linear-gradient(90deg,transparent,var(--gold))}
+  .orn::after{background:linear-gradient(270deg,transparent,var(--gold))}
+  .btn-google{display:inline-flex;align-items:center;gap:12px;padding:14px 28px;border-radius:999px;border:1px solid var(--gold);
+     background:rgba(255,255,255,.04);color:var(--gold-soft);font:600 15px var(--title);letter-spacing:.08em;cursor:pointer;
+     transition:.25s;backdrop-filter:blur(4px)}
+  .btn-google:hover{background:var(--gold);color:#1b1030;box-shadow:0 0 26px rgba(217,184,108,.45)}
+  .btn-google svg{width:20px;height:20px;background:#fff;border-radius:50%;padding:2px}
+  .err{color:#ff9fb2;font-size:17px;min-height:24px;margin:0}
+
+  /* ---------- Topo ---------- */
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:16px clamp(16px,4vw,40px);
+       border-bottom:1px solid rgba(217,184,108,.2);background:rgba(18,11,36,.6);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+  .brand{display:flex;align-items:center;gap:10px;font-family:var(--title);letter-spacing:.12em;color:var(--gold-soft);font-size:15px;text-transform:uppercase}
+  .brand svg{width:28px;height:28px}
+  .who{color:var(--mute);font-size:15px;max-width:34vw;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .btn{padding:8px 18px;border-radius:999px;border:1px solid rgba(217,184,108,.5);background:transparent;color:var(--gold-soft);
+       font:600 13px var(--title);letter-spacing:.08em;cursor:pointer;transition:.2s}
+  .btn:hover{background:rgba(217,184,108,.15)}
+  .right{display:flex;align-items:center;gap:12px}
+
+  /* ---------- Home: cartas ---------- */
+  .wrap{max-width:1100px;margin:0 auto;padding:36px clamp(16px,4vw,40px) 60px;text-align:center}
+  .wrap h2{font-family:var(--title);font-weight:400;letter-spacing:.18em;text-transform:uppercase;color:var(--gold-soft);font-size:clamp(20px,4vw,28px);margin:0 0 6px}
+  .wrap .orn{margin:14px auto 34px}
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:clamp(14px,3vw,28px);justify-items:center}
+  .card{position:relative;width:100%;max-width:230px;aspect-ratio:2/3;border-radius:14px;cursor:pointer;
+        background:linear-gradient(160deg,#2f1c5c,#180e33 70%);border:1px solid var(--gold);
+        display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:20px 12px;
+        color:var(--ink);font:inherit;transition:transform .3s,box-shadow .3s;box-shadow:0 8px 24px rgba(0,0,0,.45)}
+  .card::before{content:"";position:absolute;inset:7px;border:1px solid rgba(217,184,108,.35);border-radius:9px;pointer-events:none}
+  .card:hover,.card:focus-visible{transform:translateY(-8px) rotate(-1deg);box-shadow:0 14px 34px rgba(217,184,108,.25),0 0 0 1px var(--gold);outline:none}
+  .card .num{font-family:var(--title);color:var(--gold);font-size:15px;letter-spacing:.2em}
+  .card svg{width:56%;max-width:92px;filter:drop-shadow(0 0 10px rgba(240,220,164,.45))}
+  .card .name{font-family:var(--title);font-size:clamp(12px,2.6vw,15px);letter-spacing:.07em;line-height:1.35;color:var(--gold-soft);text-transform:uppercase;padding:0 4px;
+       display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .empty{color:var(--mute);font-style:italic}
+
+  /* ---------- Leitor ---------- */
+  #pages{display:flex;flex-direction:column;align-items:center;gap:18px;padding:22px 12px 60px}
+  .page{position:relative;width:100%;max-width:900px;border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6)}
+  canvas{display:block;width:100%;height:auto;background:#fff;pointer-events:none}
+  .wm{position:absolute;inset:-30%;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;
+      pointer-events:none;opacity:.12;color:#000;font:700 18px sans-serif;transform:rotate(-25deg)}
+  .wm span{padding:30px}
+  .docTitle{font-family:var(--title);color:var(--gold-soft);font-size:14px;letter-spacing:.08em;text-transform:uppercase;
+            overflow:hidden;text-overflow:ellipsis;white-space:nowrap;flex:1;text-align:center}
+
+  /* ---------- Loader / escudo ---------- */
+  #loader{display:flex;align-items:center;justify-content:center}
+  #loader .moon{width:80px;height:80px;animation:spin 2.4s linear infinite}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  #shield{position:fixed;inset:0;background:var(--bg1);display:none;z-index:99;align-items:center;justify-content:center;
+          text-align:center;padding:24px;font-style:italic;color:var(--mute)}
+  @media (max-width:520px){ body{font-size:17px} .who{display:none} .moon{width:96px;height:96px} .grid{grid-template-columns:repeat(2,1fr)} }
+  @media (prefers-reduced-motion:reduce){ *{animation:none!important} }
+  @media print{ body{display:none!important} }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gold" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset="1" stop-color="#d9b86c"/></linearGradient>
+    <symbol id="i-moon" viewBox="0 0 100 100"><path fill="url(#gold)" d="M62 8a42 42 0 1 0 30 70A36 36 0 0 1 62 8z"/><circle cx="74" cy="30" r="2.2" fill="#fff3cf"/><circle cx="84" cy="46" r="1.5" fill="#fff3cf"/></symbol>
+    <symbol id="i-star" viewBox="0 0 100 100"><path fill="url(#gold)" d="M50 6l9 31 31 13-31 13-9 31-9-31-31-13 31-13z"/></symbol>
+    <symbol id="i-eye" viewBox="0 0 100 100"><path fill="none" stroke="url(#gold)" stroke-width="4" d="M6 50C22 24 78 24 94 50 78 76 22 76 6 50z"/><circle cx="50" cy="50" r="13" fill="url(#gold)"/><circle cx="50" cy="50" r="5" fill="#180e33"/></symbol>
+    <symbol id="i-sun" viewBox="0 0 100 100"><circle cx="50" cy="50" r="17" fill="url(#gold)"/><g stroke="url(#gold)" stroke-width="4" stroke-linecap="round"><path d="M50 8v14M50 78v14M8 50h14M78 50h14M20 20l10 10M70 70l10 10M80 20L70 30M30 70L20 80"/></g></symbol>
+  </defs>
+</svg>
+
+<div id="stars"></div>
+
+<!-- Carregando -->
+<div id="loader" class="screen"><svg class="moon"><use href="#i-moon"/></svg></div>
+
+<!-- Login -->
+<div id="login" class="screen center" hidden>
+  <svg class="moon"><use href="#i-moon"/></svg>
+  <h1>Caminhos da Lua</h1>
+  <div class="orn">✦</div>
+  <p class="sub">Seu acesso ao curso</p>
+  <button class="btn-google" id="btnLogin">
+    <svg viewBox="0 0 48 48"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.7 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6C12.3 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.8A14.5 14.5 0 0 1 9.5 24c0-1.7.3-3.3.9-4.8l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.7-3.9-13.6-9.5l-7.8 6C6.5 42.6 14.6 48 24 48z"/></svg>
+    Entrar com Google
+  </button>
+  <p id="msg" class="err"></p>
+</div>
+
+<!-- Home -->
+<div id="home" class="screen" hidden>
+  <header class="top">
+    <div class="brand"><svg><use href="#i-moon"/></svg><span>Caminhos da Lua</span></div>
+    <div class="right"><span class="who" id="who"></span><button class="btn" id="btnOut">Sair</button></div>
+  </header>
+  <main class="wrap">
+    <h2>Seu curso</h2>
+    <div class="orn">✦</div>
+    <div class="grid" id="list"></div>
+  </main>
+</div>
+
+<!-- Leitor -->
+<div id="viewer" class="screen" hidden>
+  <header class="top">
+    <button class="btn" id="btnBack">← Voltar</button>
+    <div class="docTitle" id="docTitle"></div>
+    <button class="btn" id="btnOut2">Sair</button>
+  </header>
+  <div id="pages"></div>
+</div>
+
+<div id="shield">O conteúdo fica oculto enquanto você estiver fora desta janela.<br>Volte para continuar.</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, getDoc, collection, getDocs, query, orderBy, startAfter, limit }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ====== Configuração do projeto Firebase ======
+const firebaseConfig = {
+  apiKey: "AIzaSyDCdIuPFXZt7pLPm-2q1YUisuJgIOe7VzQ",
+  authDomain: "caminhosdallua-7c5b3.firebaseapp.com",
+  projectId: "caminhosdallua-7c5b3",
+  storageBucket: "caminhosdallua-7c5b3.firebasestorage.app",
+  messagingSenderId: "252335527126",
+  appId: "1:252335527126:web:5e021984127562d79ca577"
+};
+// ========================================================
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app), db = getFirestore(app);
+pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+const ADMINS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
+const $ = id => document.getElementById(id);
+const SCREENS = ["loader", "login", "home", "viewer"];
+const show = id => SCREENS.forEach(s => $(s).hidden = s !== id);
+const ICONS = ["i-moon", "i-star", "i-eye", "i-sun"];
+const roman = n => { const m=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]]; let r=""; for(const [v,s] of m){while(n>=v){r+=s;n-=v}} return r; };
+
+// ---------- Estrelas ----------
+(() => {
+  const box = $("stars");
+  for (let i = 0; i < 70; i++) {
+    const s = document.createElement("i"); s.className = "star";
+    const z = Math.random() * 2.2 + .8;
+    s.style.cssText = `left:${Math.random()*100}%;top:${Math.random()*100}%;width:${z}px;height:${z}px;animation-delay:${Math.random()*4}s;animation-duration:${3+Math.random()*4}s`;
+    box.appendChild(s);
+  }
+})();
+
+// ---------- Login ----------
+$("btnLogin").onclick = () => {
+  $("msg").textContent = "";
+  signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
+    if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request")
+      $("msg").textContent = "Não foi possível entrar. Tente novamente.";
+  });
+};
+$("btnOut").onclick = $("btnOut2").onclick = () => signOut(auth);
+$("btnBack").onclick = () => { closeDoc(); show("home"); };
+
+onAuthStateChanged(auth, async user => {
+  closeDoc();
+  if (!user) { bytesCache.clear(); show("login"); return; }
+  try {
+    const email = (user.email || "").toLowerCase();
+    const isAdmin = ADMINS.includes(email);
+    const isAllowed = isAdmin || await getDoc(doc(db, "allowed", email)).then(s => s.exists()).catch(() => false);
+    const ok = user.emailVerified && isAllowed;
+    if (!ok) {
+      await signOut(auth);
+      $("msg").textContent = "Este e-mail ainda não tem acesso ao curso.";
+      return;
+    }
+    $("msg").textContent = "";
+    $("who").textContent = email;
+    window.__email = email;
+    await loadList();
+    show("home");
+  } catch (e) {
+    console.error(e);
+    await signOut(auth);
+    $("msg").textContent = "Algo deu errado. Tente novamente.";
+  }
+});
+
+// ---------- Lista do curso ----------
+async function loadList() {
+  const snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc")));
+  const list = $("list"); list.innerHTML = "";
+  if (snap.empty) { list.innerHTML = '<p class="empty">Em breve, novos conteúdos.</p>'; return; }
+  let n = 0;
+  snap.forEach(d => {
+    n++;
+    const data = d.data();
+    const b = document.createElement("button"); b.className = "card";
+    b.innerHTML = `<span class="num">${roman(n)}</span><svg><use href="#${ICONS[(n-1)%ICONS.length]}"/></svg><span class="name"></span>`;
+    b.querySelector(".name").textContent = data.title;
+    b.onclick = () => openDoc({ ...data, id: d.id });
+    list.appendChild(b);
+  });
+}
+
+// ---------- Leitor protegido ----------
+async function openDoc(data) {
+  $("docTitle").textContent = data.title;
+  $("pages").innerHTML = '<svg class="moon" style="width:70px;height:70px;animation:spin 2.4s linear infinite;margin-top:40px"><use href="#i-moon"/></svg><p id="pct" class="sub"></p>';
+  show("viewer"); window.scrollTo(0, 0);
+  try { await render(window.__email, data); }
+  catch (e) { console.error(e); $("pages").innerHTML = '<p class="err">Não foi possível abrir este conteúdo.</p>'; }
+}
+
+const bytesCache = new Map();
+
+// Junta os pedaços do PDF guardados no Firestore (consulta em lotes: menos leituras)
+async function fetchPdf(id, meta) {
+  if (bytesCache.has(id)) return new Uint8Array(bytesCache.get(id));   // cópia: o pdf.js consome o buffer
+  const out = new Uint8Array(meta.size);
+  const col = collection(db, "documents", id, "chunks");
+  let offset = 0, last = null;
+  while (offset < meta.size) {
+    const q = last ? query(col, orderBy("n"), startAfter(last), limit(8)) : query(col, orderBy("n"), limit(8));
+    const snap = await getDocs(q);
+    if (snap.empty) break;
+    snap.forEach(d => { const u8 = d.data().data.toUint8Array(); out.set(u8, offset); offset += u8.length; last = d; });
+    const pct = $("pct"); if (pct) pct.textContent = Math.round((offset / meta.size) * 100) + "%";
+  }
+  if (offset !== meta.size) throw new Error("Arquivo incompleto");
+  bytesCache.clear(); bytesCache.set(id, out);
+  return new Uint8Array(out);
+}
+
+let currentPdf = null, currentIO = null;
+function closeDoc() {
+  try { currentIO && currentIO.disconnect(); } catch (e) {}
+  try { currentPdf && currentPdf.destroy(); } catch (e) {}
+  currentIO = currentPdf = null;
+  $("pages").innerHTML = "";
+}
+
+async function render(email, meta) {
+  const data = await fetchPdf(meta.id, meta);
+  const pdf = await pdfjsLib.getDocument({ data }).promise;
+  closeDoc();
+  currentPdf = pdf;
+  const scale = Math.min(2, window.devicePixelRatio || 1.5) * 1.2;
+  const first = await pdf.getPage(1);
+  const v0 = first.getViewport({ scale: 1 });
+  const box = $("pages");
+
+  async function draw(w) {
+    if (w._done || w._busy || !currentPdf) return;
+    w._busy = true;
+    try {
+      const page = await pdf.getPage(w._n);
+      const vp = page.getViewport({ scale });
+      const canvas = document.createElement("canvas");
+      canvas.width = vp.width; canvas.height = vp.height;
+      await page.render({ canvasContext: canvas.getContext("2d"), viewport: vp }).promise;
+      w.style.aspectRatio = vp.width + " / " + vp.height;
+      w.insertBefore(canvas, w.firstChild);
+      w._done = true;
+    } catch (e) { /* página cancelada ao fechar */ }
+    w._busy = false;
+  }
+  function release(w) {               // libera memória das páginas distantes
+    const c = w.querySelector("canvas");
+    if (c) { c.width = c.height = 0; c.remove(); }
+    w._done = false;
+  }
+
+  currentIO = new IntersectionObserver(es => es.forEach(en => en.isIntersecting ? draw(en.target) : release(en.target)),
+                                       { rootMargin: "1500px 0px" });
+  for (let n = 1; n <= pdf.numPages; n++) {
+    const w = document.createElement("div"); w.className = "page"; w._n = n;
+    w.style.aspectRatio = v0.width + " / " + v0.height;
+    const wm = document.createElement("div"); wm.className = "wm";
+    for (let i = 0; i < 40; i++) { const sp = document.createElement("span"); sp.textContent = email; wm.appendChild(sp); }
+    w.appendChild(wm);
+    box.appendChild(w);
+    currentIO.observe(w);
+  }
+}
+
+// ---------- Dissuasores ----------
+document.addEventListener("contextmenu", e => e.preventDefault());
+document.addEventListener("dragstart", e => e.preventDefault());
+document.addEventListener("copy", e => e.preventDefault());
+document.addEventListener("keydown", e => {
+  const k = e.key.toLowerCase();
+  if ((e.ctrlKey || e.metaKey) && ["s","p","u","c","a"].includes(k)) e.preventDefault();
+  if (e.key === "F12" || e.key === "PrintScreen") { e.preventDefault(); navigator.clipboard?.writeText(""); }
+});
+const shield = $("shield");
+const hide = () => { if (!$("viewer").hidden) shield.style.display = "flex"; };
+const unhide = () => shield.style.display = "none";
+window.addEventListener("blur", hide);
+window.addEventListener("focus", unhide);
+document.addEventListener("visibilitychange", () => document.hidden ? hide() : unhide());
+</script>
+</body>
+</html>

@@ -9,7 +9,14 @@
 <title>Caminhos da Lua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://www.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://firestore.googleapis.com" crossorigin>
+<link rel="preconnect" href="https://apis.google.com" crossorigin>
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js">
+<link rel="modulepreload" href="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js">
+<link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600;700&family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;0,700;1,400;1,500&display=swap"></noscript>
 <style>
   :root{
     color-scheme:dark;
@@ -51,6 +58,7 @@
      background:rgba(255,255,255,.04);color:var(--gold-soft);font:600 15px var(--title);letter-spacing:.08em;cursor:pointer;
      transition:background .25s,color .25s,box-shadow .25s,transform .1s;backdrop-filter:blur(4px)}
   .btn-google:active{transform:scale(.98)}
+  .btn-google:disabled{opacity:.75;cursor:progress;transform:none}
   .btn-google svg{width:22px;height:22px;background:#fff;border-radius:50%;padding:2px}
   @media (hover:hover){.btn-google:hover{background:var(--gold);color:#1b1030;box-shadow:0 0 26px rgba(217,184,108,.45)}}
   .err{color:#ff9fb2;font-size:18px;min-height:26px;margin:0}
@@ -96,6 +104,10 @@
   .card svg{width:56%;max-width:96px;filter:drop-shadow(0 0 10px rgba(240,220,164,.45))}
   .card .name{font-family:var(--title);font-size:clamp(12px,2.6vw,15px);letter-spacing:.07em;line-height:1.35;color:var(--gold-soft);text-transform:uppercase;padding:0 4px;
        display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+  .card.skel{pointer-events:none;border-color:var(--line);background:rgba(255,255,255,.04);box-shadow:none;animation:pulse 1.2s ease-in-out infinite}
+  .card.skel::before{border-color:transparent}
+  @keyframes pulse{50%{opacity:.5}}
+  .retry{margin-top:6px}
   .tag{position:absolute;top:14px;right:14px;padding:2px 9px;border-radius:999px;background:var(--gold);color:#1b1030;font:700 10px var(--title);letter-spacing:.12em;text-transform:uppercase}
   .empty{grid-column:1/-1;display:grid;justify-items:center;gap:10px;color:var(--mute);font-style:italic;padding:30px 0}
   .empty svg{width:64px;height:64px;opacity:.9;filter:drop-shadow(0 0 14px rgba(240,220,164,.4))}
@@ -159,7 +171,7 @@
   <p class="sub">Seu acesso ao curso</p>
   <button class="btn-google" id="btnLogin" type="button">
     <svg viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.5 0 6.6 1.2 9 3.5l6.7-6.7C35.7 2.4 30.2 0 24 0 14.6 0 6.5 5.4 2.6 13.2l7.8 6C12.3 13.4 17.7 9.5 24 9.5z"/><path fill="#4285F4" d="M46.5 24.5c0-1.6-.1-3.1-.4-4.5H24v9h12.7c-.6 3-2.3 5.5-4.8 7.2l7.5 5.8c4.4-4.1 7.1-10.1 7.1-17.5z"/><path fill="#FBBC05" d="M10.4 28.8A14.5 14.5 0 0 1 9.5 24c0-1.7.3-3.3.9-4.8l-7.8-6A24 24 0 0 0 0 24c0 3.9.9 7.5 2.6 10.8l7.8-6z"/><path fill="#34A853" d="M24 48c6.5 0 11.9-2.1 15.9-5.8l-7.5-5.8c-2.1 1.4-4.9 2.3-8.4 2.3-6.3 0-11.7-3.9-13.6-9.5l-7.8 6C6.5 42.6 14.6 48 24 48z"/></svg>
-    Entrar com Google
+    <span id="loginTxt">Entrar com Google</span>
   </button>
   <p id="msg" class="err" role="alert"></p>
   <p class="note">Use o e-mail Google que foi liberado para você.</p>
@@ -198,7 +210,23 @@
 
 <div id="shield"><div><svg class="moon" aria-hidden="true"><use href="#i-moon"/></svg><span>O conteúdo fica oculto enquanto você estiver fora desta janela.<br>Volte para continuar.</span></div></div>
 
-<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+// Entrada instantânea: se esta pessoa já entrou neste aparelho, mostra a home na hora (com cartas "vazias").
+// É só visual; o acesso real e os dados continuam protegidos pelo Firebase.
+(function () {
+  try {
+    var h = JSON.parse(localStorage.getItem("lua_u") || "null");
+    if (!h || !h.e) return;
+    document.getElementById("loader").hidden = true;
+    document.getElementById("home").hidden = false;
+    document.getElementById("who").textContent = h.e;
+    document.getElementById("avatar").textContent = (h.n || h.e)[0].toUpperCase();
+    if (h.n) { var g = document.getElementById("greet"); g.textContent = "Olá, " + h.n; g.hidden = false; }
+    var l = document.getElementById("list");
+    for (var i = 0; i < 4; i++) { var c = document.createElement("div"); c.className = "card skel"; l.appendChild(c); }
+  } catch (e) {}
+})();
+</script>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
@@ -219,7 +247,21 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app), db = getFirestore(app);
-pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js";
+
+// pdf.js só é baixado quando precisa (e adiantado em segundo plano depois que a home aparece)
+let pdfReady = null;
+function loadPdfJs() {
+  if (window.pdfjsLib) return Promise.resolve();
+  if (!pdfReady) pdfReady = new Promise((ok, no) => {
+    const sc = document.createElement("script");
+    sc.src = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js";
+    sc.onload = () => { pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js"; ok(); };
+    sc.onerror = () => { pdfReady = null; no(new Error("pdf.js")); };
+    document.head.appendChild(sc);
+  });
+  return pdfReady;
+}
+const rememberUser = (email, name) => { try { email ? localStorage.setItem("lua_u", JSON.stringify({ e: email, n: name || "" })) : localStorage.removeItem("lua_u"); } catch (e) {} };
 
 const ADMINS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
 const $ = id => document.getElementById(id);
@@ -241,25 +283,29 @@ const roman = n => { const m=[[10,"X"],[9,"IX"],[5,"V"],[4,"IV"],[1,"I"]]; let r
 })();
 
 // ---------- Login ----------
+const loginBusy = on => { $("btnLogin").disabled = on; $("loginTxt").textContent = on ? "Entrando…" : "Entrar com Google"; };
 $("btnLogin").onclick = () => {
-  $("msg").textContent = "";
+  $("msg").textContent = ""; loginBusy(true);
   signInWithPopup(auth, new GoogleAuthProvider()).catch(e => {
     if (e.code !== "auth/popup-closed-by-user" && e.code !== "auth/cancelled-popup-request")
       $("msg").textContent = "Não foi possível entrar. Tente novamente.";
-  });
+  }).finally(() => loginBusy(false));
 };
 $("btnOut").onclick = $("btnOut2").onclick = () => signOut(auth);
 $("btnBack").onclick = () => { closeDoc(); show("home"); };
 
 onAuthStateChanged(auth, async user => {
   closeDoc();
-  if (!user) { bytesCache.clear(); show("login"); return; }
+  if (!user) { bytesCache.clear(); rememberUser(null); show("login"); return; }
+  if ($("home").hidden) show("loader");          // feedback imediato logo depois do login
   try {
     const email = (user.email || "").toLowerCase();
     const isAdmin = ADMINS.includes(email);
+    const listP = loadList();                    // a lista carrega ao mesmo tempo que o acesso é conferido
     const isAllowed = isAdmin || await getDoc(doc(db, "allowed", email)).then(s => s.exists()).catch(() => false);
     const ok = user.emailVerified && isAllowed;
     if (!ok) {
+      rememberUser(null);
       await signOut(auth);
       $("msg").textContent = "Este e-mail ainda não tem acesso ao curso.";
       return;
@@ -270,10 +316,12 @@ onAuthStateChanged(auth, async user => {
     $("avatar").textContent = (first || email || "?")[0].toUpperCase();
     $("greet").textContent = first ? "Olá, " + first : ""; $("greet").hidden = !first;
     window.__email = email;
-    await loadList();
-    show("home");
+    rememberUser(email, first);
+    show("home");                                // já aparece com as cartas "vazias" enquanto a lista termina
+    listP.then(() => { (window.requestIdleCallback || setTimeout)(() => loadPdfJs().catch(() => {}), 1500); });
   } catch (e) {
     console.error(e);
+    rememberUser(null);
     await signOut(auth);
     $("msg").textContent = "Algo deu errado. Tente novamente.";
   }
@@ -281,8 +329,20 @@ onAuthStateChanged(auth, async user => {
 
 // ---------- Lista do curso ----------
 async function loadList() {
-  const snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc")));
-  const list = $("list"); list.innerHTML = "";
+  const list = $("list");
+  if (!list.querySelector(".card")) {            // esqueleto enquanto carrega
+    list.innerHTML = ""; for (let i = 0; i < 4; i++) { const c = document.createElement("div"); c.className = "card skel"; list.appendChild(c); }
+  }
+  let snap;
+  try { snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc"))); }
+  catch (e) {
+    console.error(e);
+    $("countTxt").textContent = "";
+    list.innerHTML = '<div class="empty"><span>Não foi possível carregar os conteúdos.</span><button class="btn retry" type="button">Tentar de novo</button></div>';
+    list.querySelector(".retry").onclick = loadList;
+    return;
+  }
+  list.innerHTML = "";
   if (snap.empty) {
     $("countTxt").textContent = "";
     list.innerHTML = '<div class="empty"><svg aria-hidden="true"><use href="#i-moon"/></svg><span>Em breve, novos conteúdos.</span></div>';
@@ -364,7 +424,7 @@ function updateReader() {
 addEventListener("scroll", () => { if (!raf) raf = requestAnimationFrame(updateReader); }, { passive: true });
 
 async function render(email, meta) {
-  const data = await fetchPdf(meta.id, meta);
+  const [data] = await Promise.all([fetchPdf(meta.id, meta), loadPdfJs()]);
   const pdf = await pdfjsLib.getDocument({ data }).promise;
   closeDoc();
   currentPdf = pdf;

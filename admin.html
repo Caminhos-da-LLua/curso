@@ -599,10 +599,14 @@ const rememberAdmin = email => {
   try { email ? localStorage.setItem("lua_adm", JSON.stringify({ e: email })) : localStorage.removeItem("lua_adm"); } catch (e) {}
 };
 
-// Admin = existe o documento admins/{email} no Firestore (as regras usam a mesma lista)
-async function isAdmin(email) {
-  try { return (await getDoc(doc(db, "admins", email))).exists(); }
-  catch { return false; }   // sem permissão = não é admin
+// Administradores autorizados (mesma lista das regras do Firestore)
+const ADMIN_EMAILS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
+
+// Confere se o usuário logado é admin: as regras só deixam admins lerem a coleção "admins".
+// Se a leitura for negada, não é admin.
+async function isAdminUser(email) {
+  try { await getDoc(doc(db, "admins", email)); return true; }
+  catch { return false; }
 }
 
 function showLogin() {
@@ -631,7 +635,7 @@ document.querySelectorAll("[data-out]").forEach(b => b.onclick = () => signOut(a
 onAuthStateChanged(auth, async user => {
   if (!user) return showLogin();
   const email = (user.email || "").toLowerCase();
-  if (!user.emailVerified || !(await isAdmin(email))) {
+  if (!user.emailVerified || !(await isAdminUser(email))) {
     rememberAdmin(null);
     await signOut(auth);
     $("msg").textContent = "Este e-mail não é administrador.";
@@ -668,7 +672,7 @@ showTab(location.hash.slice(1));
 // Estado: e-mails liberados (email -> data) e lista de admins
 const state = {
   allowed: new Map(),   // email -> addedAt
-  admins: [],           // e-mails administradores
+  admins: ADMIN_EMAILS, // e-mails administradores (fixos)
   selected: new Set(),  // selecionados na lista
   pending: []           // e-mails digitados, ainda não liberados
 };
@@ -678,16 +682,16 @@ const totalAccess = () => state.admins.length + [...state.allowed.keys()].filter
 const sortedAllowed = () => [...state.allowed.keys()].sort();
 
 async function loadPeople() {
-  let allowedSnap, adminsSnap;
+  let allowedSnap;
   try {
-    [allowedSnap, adminsSnap] = await Promise.all([getDocs(collection(db, "allowed")), getDocs(collection(db, "admins"))]);
+    allowedSnap = await getDocs(collection(db, "allowed"));
   } catch (e) {
     console.error(e);
     emptyBox($("emails"), "alert", "Não foi possível carregar a lista", e.code || e.message);
     return;
   }
   state.allowed = new Map(allowedSnap.docs.map(d => [d.id, d.data().addedAt]));
-  state.admins = adminsSnap.docs.map(d => d.id).sort();
+  state.admins = ADMIN_EMAILS;
   for (const e of [...state.selected]) if (!state.allowed.has(e)) state.selected.delete(e);
   drawPeople();
 }

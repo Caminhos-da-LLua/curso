@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#120b24">
+<meta name="robots" content="noindex">
+<title>Admin · Caminhos da Lua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+  :root{--bg1:#120b24;--bg2:#1d1238;--bg3:#2a1850;--gold:#d9b86c;--gold-soft:#f0dca4;--ink:#efe8ff;--mute:#a99cc9;
+        --serif:"Cormorant Garamond",Georgia,serif;--title:"Cinzel",Georgia,serif}
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  [hidden]{display:none!important}
+  body{margin:0;min-height:100vh;font-family:var(--serif);font-size:18px;color:var(--ink);
+       background:radial-gradient(ellipse at 50% 0%,var(--bg3),var(--bg2) 45%,var(--bg1)) fixed;
+       padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  .moon{width:90px;height:90px;filter:drop-shadow(0 0 18px rgba(240,220,164,.5))}
+  h1,h2{font-family:var(--title);font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin:0}
+  h1{font-size:clamp(24px,5vw,36px);background:linear-gradient(180deg,#fff3cf,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h2{font-size:17px;color:var(--gold-soft);margin-bottom:6px}
+  .center{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
+  .sub{color:var(--mute);font-style:italic;margin:0}
+  .err{color:#ff9fb2;min-height:22px;margin:0}.ok{color:#9be3b0}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px clamp(14px,4vw,36px);
+       border-bottom:1px solid rgba(217,184,108,.2);background:rgba(18,11,36,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+  .brand{font-family:var(--title);letter-spacing:.1em;color:var(--gold-soft);font-size:14px;text-transform:uppercase}
+  .who{color:var(--mute);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:40vw}
+  main{max-width:880px;margin:0 auto;padding:24px clamp(14px,4vw,36px) 60px;display:grid;gap:22px}
+  section{background:rgba(255,255,255,.04);border:1px solid rgba(217,184,108,.35);border-radius:16px;padding:20px}
+  p.hint{color:var(--mute);font-size:16px;margin:0 0 14px}
+  input,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(217,184,108,.4);background:rgba(0,0,0,.25);
+       color:var(--ink);font:inherit;margin-bottom:10px;-webkit-user-select:text;user-select:text}
+  input:focus,textarea:focus{outline:2px solid var(--gold)}
+  input[type=file]{padding:10px}
+  textarea{min-height:110px;resize:vertical}
+  .btn{padding:11px 22px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold-soft);
+       font:600 13px var(--title);letter-spacing:.08em;cursor:pointer;transition:.2s}
+  .btn:hover{background:var(--gold);color:#1b1030}
+  .btn:disabled{opacity:.5;cursor:wait}
+  .btn.gold{background:var(--gold);color:#1b1030}
+  .btn.del{border-color:#d9667a;color:#ffb3c0;padding:7px 14px;font-size:12px}
+  .btn.del:hover{background:#d9667a;color:#fff}
+  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(217,184,108,.15)}
+  .row:last-child{border:0}
+  .row span{overflow:hidden;text-overflow:ellipsis;word-break:break-all}
+  .count{color:var(--gold);font-family:var(--title);font-size:13px;letter-spacing:.1em}
+  progress{width:100%;height:12px;margin:4px 0 8px;accent-color:var(--gold)}
+  .bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px}
+  .list{max-height:420px;overflow:auto}
+</style>
+</head>
+<body>
+
+<div id="login" class="center">
+  <svg class="moon" viewBox="0 0 100 100"><defs><linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#fff3cf"/><stop offset="1" stop-color="#d9b86c"/></linearGradient></defs><path fill="url(#g)" d="M62 8a42 42 0 1 0 30 70A36 36 0 0 1 62 8z"/></svg>
+  <h1>Painel Admin</h1>
+  <p class="sub">Caminhos da Lua</p>
+  <button class="btn gold" id="btnLogin">Entrar com Google</button>
+  <p id="msg" class="err"></p>
+</div>
+
+<div id="app" hidden>
+  <header class="top">
+    <span class="brand">☾ Admin · Caminhos da Lua</span>
+    <span style="display:flex;gap:12px;align-items:center">
+      <span class="who" id="who"></span>
+      <button class="btn" id="btnOut">Sair</button>
+    </span>
+  </header>
+
+  <main>
+    <!-- ACESSOS -->
+    <section>
+      <div class="bar"><h2>✉ Quem tem acesso ao curso</h2><span class="count" id="count"></span></div>
+      <p class="hint">Cole um ou vários e-mails Google (um por linha ou separados por vírgula) e libere o acesso.</p>
+      <textarea id="newEmails" placeholder="aluna1@gmail.com&#10;aluna2@gmail.com"></textarea>
+      <button class="btn gold" id="btnAdd">Liberar acesso</button>
+      <p id="addMsg" class="err"></p>
+      <input type="search" id="filter" placeholder="Buscar e-mail..." style="margin-top:6px">
+      <div class="list" id="emails">Carregando...</div>
+    </section>
+
+    <!-- CONTEÚDOS -->
+    <section>
+      <h2>☾ Enviar novo PDF</h2>
+      <p class="hint">Até 100 MB por arquivo. O PDF fica salvo na nuvem (Firestore) e só pode ser visualizado no site. O título vira o nome da carta. Dica: quanto mais leve o PDF, mais rápido abre e menos do limite gratuito é usado.</p>
+      <input type="text" id="title" placeholder="Título (ex.: Módulo 1)" maxlength="60">
+      <input type="file" id="file" accept="application/pdf">
+      <button class="btn gold" id="btnUp">Enviar para a nuvem</button>
+      <progress id="prog" value="0" max="100" hidden></progress>
+      <p id="upMsg" class="err"></p>
+    </section>
+
+    <section>
+      <h2>✦ Conteúdos publicados</h2>
+      <p class="hint" id="usage"></p>
+      <div class="list" id="docs">Carregando...</div>
+    </section>
+  </main>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+import { getFirestore, doc, setDoc, deleteDoc, collection, getDocs, query, orderBy, serverTimestamp, writeBatch, Bytes }
+  from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+// ====== Configuração do projeto Firebase ======
+const firebaseConfig = {
+  apiKey: "AIzaSyDCdIuPFXZt7pLPm-2q1YUisuJgIOe7VzQ",
+  authDomain: "caminhosdallua-7c5b3.firebaseapp.com",
+  projectId: "caminhosdallua-7c5b3",
+  storageBucket: "caminhosdallua-7c5b3.firebasestorage.app",
+  messagingSenderId: "252335527126",
+  appId: "1:252335527126:web:5e021984127562d79ca577"
+};
+// Mesma lista das regras (firestore.rules / storage.rules)
+const ADMINS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
+
+const app = initializeApp(firebaseConfig);
+const auth = getAuth(app), db = getFirestore(app);
+const $ = id => document.getElementById(id);
+const setMsg = (id, t, good) => { const e = $(id); e.textContent = t || ""; e.className = good ? "ok" : "err"; };
+const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/;
+
+$("btnLogin").onclick = () => signInWithPopup(auth, new GoogleAuthProvider())
+  .catch(e => { if (!String(e.code).includes("popup")) setMsg("msg", "Erro no login: " + e.code); });
+$("btnOut").onclick = () => signOut(auth);
+
+onAuthStateChanged(auth, async user => {
+  if (!user) { $("app").hidden = true; $("login").hidden = false; return; }
+  const email = (user.email || "").toLowerCase();
+  if (!user.emailVerified || !ADMINS.includes(email)) {
+    await signOut(auth);
+    setMsg("msg", "Este e-mail não é administrador.");
+    return;
+  }
+  setMsg("msg", "");
+  $("login").hidden = true; $("app").hidden = false;
+  $("who").textContent = email;
+  loadEmails(); loadDocs();
+});
+
+// ================= ACESSOS =================
+let allEmails = [];
+
+async function loadEmails() {
+  const snap = await getDocs(collection(db, "allowed"));
+  allEmails = snap.docs.map(d => d.id).sort();
+  drawEmails();
+}
+
+function drawEmails() {
+  const q = $("filter").value.trim().toLowerCase();
+  const items = allEmails.filter(e => e.includes(q));
+  $("count").textContent = allEmails.length + (allEmails.length === 1 ? " pessoa" : " pessoas");
+  const box = $("emails"); box.innerHTML = "";
+  if (!items.length) { box.textContent = allEmails.length ? "Nenhum resultado." : "Ninguém liberado ainda."; return; }
+  items.forEach(e => {
+    const row = document.createElement("div"); row.className = "row";
+    const sp = document.createElement("span"); sp.textContent = e;
+    const b = document.createElement("button"); b.className = "btn del"; b.textContent = "Remover";
+    b.onclick = async () => {
+      if (!confirm("Remover o acesso de " + e + "?")) return;
+      await deleteDoc(doc(db, "allowed", e));
+      allEmails = allEmails.filter(x => x !== e); drawEmails();
+    };
+    row.append(sp, b); box.appendChild(row);
+  });
+}
+$("filter").oninput = drawEmails;
+
+$("btnAdd").onclick = async () => {
+  const list = [...new Set($("newEmails").value.toLowerCase().split(/[\s,;]+/).filter(Boolean))];
+  if (!list.length) return setMsg("addMsg", "Digite pelo menos um e-mail.");
+  const bad = list.filter(e => !EMAIL_RE.test(e));
+  if (bad.length) return setMsg("addMsg", "E-mail inválido: " + bad[0]);
+  $("btnAdd").disabled = true;
+  try {
+    for (let i = 0; i < list.length; i += 400) {
+      const batch = writeBatch(db);
+      list.slice(i, i + 400).forEach(e => batch.set(doc(db, "allowed", e), { addedAt: serverTimestamp() }));
+      await batch.commit();
+    }
+    $("newEmails").value = "";
+    setMsg("addMsg", `✔ ${list.length} acesso(s) liberado(s).`, true);
+    await loadEmails();
+  } catch (e) { setMsg("addMsg", "Erro ao salvar: " + e.code); }
+  $("btnAdd").disabled = false;
+};
+
+// ================= CONTEÚDOS (PDF salvo em pedaços no Firestore) =================
+const MAX_MB = 100;          // limite por arquivo
+const CHUNK = 800000;        // bytes por pedaço (Firestore aceita < 1 MiB por documento)
+const PER_BATCH = 8;         // pedaços por gravação
+const FREE_MB = 1000;        // ~1 GiB gratuitos no plano Spark
+const chunkId = i => String(i).padStart(6, "0");
+const fmtMB = b => (b / 1048576).toFixed(1) + " MB";
+let usedBytes = 0;
+
+async function deleteChunks(id, count) {
+  for (let i = 0; i < count; i += 400) {
+    const batch = writeBatch(db);
+    for (let j = i; j < Math.min(i + 400, count); j++) batch.delete(doc(db, "documents", id, "chunks", chunkId(j)));
+    await batch.commit();
+  }
+}
+
+$("btnUp").onclick = async () => {
+  const file = $("file").files[0], title = $("title").value.trim();
+  if (!title) return setMsg("upMsg", "Informe um título.");
+  if (!file || file.type !== "application/pdf") return setMsg("upMsg", "Selecione um arquivo PDF.");
+  if (file.size > MAX_MB * 1048576) return setMsg("upMsg", `Tamanho máximo: ${MAX_MB} MB.`);
+  if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95)
+    if (!confirm("Isto passa perto do limite gratuito de ~1 GB de armazenamento. Enviar mesmo assim?")) return;
+
+  const parent = doc(collection(db, "documents"));
+  const total = Math.ceil(file.size / CHUNK);
+  let written = 0;
+  $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true;
+  setMsg("upMsg", "Enviando... 0%", true);
+  try {
+    for (let i = 0; i < total; i += PER_BATCH) {
+      const batch = writeBatch(db);
+      const end = Math.min(i + PER_BATCH, total);
+      for (let j = i; j < end; j++) {
+        const buf = new Uint8Array(await file.slice(j * CHUNK, (j + 1) * CHUNK).arrayBuffer());
+        batch.set(doc(db, "documents", parent.id, "chunks", chunkId(j)), { n: j, data: Bytes.fromUint8Array(buf) });
+      }
+      await batch.commit();
+      written = end;
+      const pc = (written / total) * 100;
+      $("prog").value = pc; setMsg("upMsg", "Enviando... " + Math.round(pc) + "%", true);
+    }
+    // só publica o conteúdo quando todos os pedaços foram salvos
+    await setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() });
+    setMsg("upMsg", "✔ PDF salvo na nuvem!", true);
+    $("title").value = ""; $("file").value = "";
+    loadDocs();
+  } catch (e) {
+    console.error(e);
+    setMsg("upMsg", "Erro no envio (" + (e.code || e.message) + "). Limpando o que foi enviado...");
+    await deleteChunks(parent.id, Math.min(written + PER_BATCH, total)).catch(() => {});
+    setMsg("upMsg", "Erro no envio (" + (e.code || e.message) + "). Tente novamente.");
+  }
+  $("btnUp").disabled = false; $("prog").hidden = true;
+};
+
+async function loadDocs() {
+  const snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc")));
+  const box = $("docs"); box.innerHTML = "";
+  usedBytes = 0;
+  snap.forEach(d => usedBytes += d.data().size || 0);
+  $("usage").textContent = `Espaço usado: ${fmtMB(usedBytes)} de ~${FREE_MB} MB do plano gratuito.`;
+  if (snap.empty) { box.textContent = "Nenhum conteúdo ainda."; return; }
+  snap.forEach(d => {
+    const { title, size, chunks } = d.data();
+    const row = document.createElement("div"); row.className = "row";
+    const sp = document.createElement("span"); sp.textContent = `${title} (${fmtMB(size || 0)})`;
+    const b = document.createElement("button"); b.className = "btn del"; b.textContent = "Excluir";
+    b.onclick = async () => {
+      if (!confirm(`Excluir "${title}" definitivamente?`)) return;
+      b.disabled = true;
+      await deleteDoc(doc(db, "documents", d.id));     // some da lista das alunas
+      await deleteChunks(d.id, chunks || 0);
+      loadDocs();
+    };
+    row.append(sp, b); box.appendChild(row);
+  });
+}
+</script>
+</body>
+</html>

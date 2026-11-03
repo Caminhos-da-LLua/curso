@@ -4,52 +4,83 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#120b24">
-<meta name="robots" content="noindex">
+<meta name="robots" content="noindex, nofollow">
 <title>Admin · Caminhos da Lua</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
 <style>
-  :root{--bg1:#120b24;--bg2:#1d1238;--bg3:#2a1850;--gold:#d9b86c;--gold-soft:#f0dca4;--ink:#efe8ff;--mute:#a99cc9;
+  :root{--bg1:#120b24;--bg2:#1d1238;--bg3:#2a1850;--gold:#d9b86c;--gold-soft:#f0dca4;--ink:#efe8ff;--mute:#a99cc9;--red:#e0788c;--green:#8fe0a8;
         --serif:"Cormorant Garamond",Georgia,serif;--title:"Cinzel",Georgia,serif}
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none!important}
-  body{margin:0;min-height:100vh;font-family:var(--serif);font-size:18px;color:var(--ink);
+  body{margin:0;min-height:100vh;font-family:var(--serif);font-size:19px;color:var(--ink);
        background:radial-gradient(ellipse at 50% 0%,var(--bg3),var(--bg2) 45%,var(--bg1)) fixed;
        padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
+  h1,h2{font-family:var(--title);font-weight:600;letter-spacing:.1em;text-transform:uppercase;margin:0}
+  h1{font-size:clamp(24px,5vw,34px);background:linear-gradient(180deg,#fff3cf,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
+  h2{font-size:16px;color:var(--gold-soft)}
   .moon{width:90px;height:90px;filter:drop-shadow(0 0 18px rgba(240,220,164,.5))}
-  h1,h2{font-family:var(--title);font-weight:600;letter-spacing:.12em;text-transform:uppercase;margin:0}
-  h1{font-size:clamp(24px,5vw,36px);background:linear-gradient(180deg,#fff3cf,var(--gold));-webkit-background-clip:text;background-clip:text;color:transparent}
-  h2{font-size:17px;color:var(--gold-soft);margin-bottom:6px}
-  .center{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;padding:24px;text-align:center}
+  .center{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:24px;text-align:center}
   .sub{color:var(--mute);font-style:italic;margin:0}
-  .err{color:#ff9fb2;min-height:22px;margin:0}.ok{color:#9be3b0}
-  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px clamp(14px,4vw,36px);
-       border-bottom:1px solid rgba(217,184,108,.2);background:rgba(18,11,36,.7);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5}
+  .err{color:var(--red);min-height:22px;margin:0}
+
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px clamp(14px,4vw,32px);
+       background:rgba(18,11,36,.8);backdrop-filter:blur(8px);position:sticky;top:0;z-index:5;border-bottom:1px solid rgba(217,184,108,.2)}
   .brand{font-family:var(--title);letter-spacing:.1em;color:var(--gold-soft);font-size:14px;text-transform:uppercase}
-  .who{color:var(--mute);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:40vw}
-  main{max-width:880px;margin:0 auto;padding:24px clamp(14px,4vw,36px) 60px;display:grid;gap:22px}
-  section{background:rgba(255,255,255,.04);border:1px solid rgba(217,184,108,.35);border-radius:16px;padding:20px}
-  p.hint{color:var(--mute);font-size:16px;margin:0 0 14px}
-  input,textarea{width:100%;padding:12px 14px;border-radius:10px;border:1px solid rgba(217,184,108,.4);background:rgba(0,0,0,.25);
-       color:var(--ink);font:inherit;margin-bottom:10px;-webkit-user-select:text;user-select:text}
-  input:focus,textarea:focus{outline:2px solid var(--gold)}
-  input[type=file]{padding:10px}
-  textarea{min-height:110px;resize:vertical}
-  .btn{padding:11px 22px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold-soft);
+  .who{color:var(--mute);font-size:15px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;max-width:36vw}
+  .tabs{display:flex;gap:8px;max-width:760px;margin:18px auto 0;padding:0 clamp(14px,4vw,32px)}
+  .tab{flex:1;padding:14px 10px;border-radius:12px;border:1px solid rgba(217,184,108,.35);background:rgba(255,255,255,.03);color:var(--mute);
+       font:600 14px var(--title);letter-spacing:.08em;cursor:pointer;text-transform:uppercase}
+  .tab.on{background:linear-gradient(180deg,rgba(217,184,108,.25),rgba(217,184,108,.08));color:var(--gold-soft);border-color:var(--gold)}
+  main{max-width:760px;margin:0 auto;padding:18px clamp(14px,4vw,32px) 80px;display:grid;gap:18px}
+  .card{background:rgba(255,255,255,.045);border:1px solid rgba(217,184,108,.3);border-radius:16px;padding:18px}
+  .card h2{margin-bottom:4px}
+  .hint{color:var(--mute);font-size:16px;margin:0 0 12px}
+  .bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:10px}
+  .count{color:var(--gold);font-family:var(--title);font-size:13px;letter-spacing:.08em}
+
+  input[type=text],input[type=search]{width:100%;padding:13px 14px;border-radius:10px;border:1px solid rgba(217,184,108,.4);background:rgba(0,0,0,.28);
+       color:var(--ink);font:inherit;-webkit-user-select:text;user-select:text}
+  input:focus{outline:2px solid var(--gold)}
+  .btn{padding:12px 22px;border-radius:999px;border:1px solid var(--gold);background:transparent;color:var(--gold-soft);
        font:600 13px var(--title);letter-spacing:.08em;cursor:pointer;transition:.2s}
-  .btn:hover{background:var(--gold);color:#1b1030}
-  .btn:disabled{opacity:.5;cursor:wait}
+  .btn:hover{background:rgba(217,184,108,.2)}
   .btn.gold{background:var(--gold);color:#1b1030}
-  .btn.del{border-color:#d9667a;color:#ffb3c0;padding:7px 14px;font-size:12px}
-  .btn.del:hover{background:#d9667a;color:#fff}
-  .row{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid rgba(217,184,108,.15)}
-  .row:last-child{border:0}
-  .row span{overflow:hidden;text-overflow:ellipsis;word-break:break-all}
-  .count{color:var(--gold);font-family:var(--title);font-size:13px;letter-spacing:.1em}
-  progress{width:100%;height:12px;margin:4px 0 8px;accent-color:var(--gold)}
-  .bar{display:flex;gap:10px;align-items:center;justify-content:space-between;flex-wrap:wrap;margin-bottom:8px}
-  .list{max-height:420px;overflow:auto}
+  .btn.gold:hover{filter:brightness(1.1)}
+  .btn:disabled{opacity:.45;cursor:not-allowed}
+  .btn.red{border-color:var(--red);color:#ffc0cc}
+  .btn.red:hover{background:var(--red);color:#fff}
+  .btn.sm{padding:7px 14px;font-size:12px}
+  .full{width:100%}
+
+  /* chips de e-mail */
+  .chipbox{display:flex;flex-wrap:wrap;gap:8px;padding:10px;border-radius:12px;border:1px dashed rgba(217,184,108,.55);background:rgba(0,0,0,.22);margin-bottom:12px}
+  .chipbox:focus-within{border-style:solid;border-color:var(--gold)}
+  .chip{display:inline-flex;align-items:center;gap:8px;background:rgba(217,184,108,.18);border:1px solid rgba(217,184,108,.5);border-radius:999px;padding:4px 6px 4px 12px;font-size:16px}
+  .chip button{border:0;background:rgba(255,255,255,.12);color:var(--ink);width:22px;height:22px;border-radius:50%;cursor:pointer;line-height:1}
+  .chipbox input{flex:1;min-width:180px;border:0;background:transparent;padding:6px;outline:none!important}
+
+  /* lista de alunas */
+  .list{max-height:460px;overflow:auto;border-top:1px solid rgba(217,184,108,.2);margin-top:12px}
+  .row{display:flex;align-items:center;gap:12px;padding:11px 4px;border-bottom:1px solid rgba(217,184,108,.12)}
+  .row .av{width:36px;height:36px;border-radius:50%;background:linear-gradient(135deg,#3b2670,#5b3aa8);display:grid;place-items:center;font:600 14px var(--title);color:var(--gold-soft);flex:none}
+  .row .tx{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .row input[type=checkbox]{width:20px;height:20px;accent-color:var(--gold);flex:none}
+  .selbar{display:flex;gap:10px;align-items:center;justify-content:space-between;background:rgba(224,120,140,.12);border:1px solid var(--red);
+          border-radius:12px;padding:10px 14px;margin-top:12px}
+  .empty{color:var(--mute);font-style:italic;padding:18px 4px;text-align:center}
+
+  /* upload */
+  .drop{display:block;border:2px dashed rgba(217,184,108,.55);border-radius:14px;padding:28px 14px;text-align:center;cursor:pointer;margin-bottom:12px;color:var(--mute);transition:.2s}
+  .drop.over,.drop:hover{background:rgba(217,184,108,.1);border-color:var(--gold)}
+  .drop b{display:block;color:var(--gold-soft);font:600 15px var(--title);letter-spacing:.06em;margin-bottom:4px;word-break:break-all}
+  progress{width:100%;height:12px;margin:12px 0 0;accent-color:var(--gold)}
+  .msg{min-height:22px;margin:10px 0 0;color:var(--mute)}.msg.err{color:var(--red)}.msg.ok{color:var(--green)}
+
+  #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,20px);opacity:0;pointer-events:none;
+         background:#1f1440;border:1px solid var(--gold);color:var(--gold-soft);padding:12px 20px;border-radius:999px;transition:.3s;z-index:20;max-width:90vw;text-align:center}
+  #toast.show{opacity:1;transform:translate(-50%,0)}#toast.bad{border-color:var(--red);color:#ffc0cc}
 </style>
 </head>
 <body>
@@ -64,43 +95,59 @@
 
 <div id="app" hidden>
   <header class="top">
-    <span class="brand">☾ Admin · Caminhos da Lua</span>
-    <span style="display:flex;gap:12px;align-items:center">
-      <span class="who" id="who"></span>
-      <button class="btn" id="btnOut">Sair</button>
-    </span>
+    <span class="brand">☾ Admin</span>
+    <span style="display:flex;gap:12px;align-items:center"><span class="who" id="who"></span><button class="btn sm" id="btnOut">Sair</button></span>
   </header>
 
+  <nav class="tabs">
+    <button class="tab on" data-tab="people">✉ Alunas</button>
+    <button class="tab" data-tab="pdfs">📄 PDFs</button>
+  </nav>
+
   <main>
-    <!-- ACESSOS -->
-    <section>
-      <div class="bar"><h2>✉ Quem tem acesso ao curso</h2><span class="count" id="count"></span></div>
-      <p class="hint">Cole um ou vários e-mails Google (um por linha ou separados por vírgula) e libere o acesso.</p>
-      <textarea id="newEmails" placeholder="aluna1@gmail.com&#10;aluna2@gmail.com"></textarea>
-      <button class="btn gold" id="btnAdd">Liberar acesso</button>
-      <p id="addMsg" class="err"></p>
-      <input type="search" id="filter" placeholder="Buscar e-mail..." style="margin-top:6px">
-      <div class="list" id="emails">Carregando...</div>
-    </section>
+    <!-- ======== ALUNAS ======== -->
+    <div id="tab-people" style="display:grid;gap:18px">
+      <section class="card">
+        <h2>Liberar acesso</h2>
+        <p class="hint">Digite ou cole os e-mails Google das alunas. Aperte <b>Enter</b> para cada um (ou cole vários de uma vez).</p>
+        <div class="chipbox" id="chipbox"><input type="text" id="emailIn" placeholder="email@gmail.com" autocomplete="off" autocapitalize="off" inputmode="email"></div>
+        <button class="btn gold full" id="btnAdd" disabled>Liberar acesso</button>
+      </section>
 
-    <!-- CONTEÚDOS -->
-    <section>
-      <h2>☾ Enviar novo PDF</h2>
-      <p class="hint">Até 100 MB por arquivo. O PDF fica salvo na nuvem (Firestore) e só pode ser visualizado no site. O título vira o nome da carta. Dica: quanto mais leve o PDF, mais rápido abre e menos do limite gratuito é usado.</p>
-      <input type="text" id="title" placeholder="Título (ex.: Módulo 1)" maxlength="60">
-      <input type="file" id="file" accept="application/pdf">
-      <button class="btn gold" id="btnUp">Enviar para a nuvem</button>
-      <progress id="prog" value="0" max="100" hidden></progress>
-      <p id="upMsg" class="err"></p>
-    </section>
+      <section class="card">
+        <div class="bar"><h2>Alunas com acesso</h2><span class="count" id="count"></span></div>
+        <input type="search" id="filter" placeholder="Buscar e-mail...">
+        <div class="selbar" id="selbar" hidden>
+          <span id="selTxt"></span>
+          <span style="display:flex;gap:8px"><button class="btn sm" id="btnNone">Limpar</button><button class="btn sm red" id="btnDelSel">Remover</button></span>
+        </div>
+        <div class="bar" style="margin:12px 0 0"><label style="display:flex;gap:8px;align-items:center;font-size:16px;color:var(--mute);cursor:pointer"><input type="checkbox" id="selAll" style="width:18px;height:18px;accent-color:var(--gold)"> Selecionar todas</label></div>
+        <div class="list" id="emails"><p class="empty">Carregando...</p></div>
+      </section>
+    </div>
 
-    <section>
-      <h2>✦ Conteúdos publicados</h2>
-      <p class="hint" id="usage"></p>
-      <div class="list" id="docs">Carregando...</div>
-    </section>
+    <!-- ======== PDFs ======== -->
+    <div id="tab-pdfs" style="display:none;gap:18px">
+      <section class="card">
+        <h2>Enviar PDF</h2>
+        <p class="hint">Até 100 MB. O título vira o nome da carta no site.</p>
+        <label class="drop" id="drop" for="file"><b id="dropName">Toque para escolher o PDF</b><span id="dropSub">ou arraste o arquivo para cá</span></label>
+        <input type="file" id="file" accept="application/pdf" hidden>
+        <input type="text" id="title" placeholder="Título (ex.: Módulo 1)" maxlength="60" style="margin-bottom:12px">
+        <button class="btn gold full" id="btnUp">Enviar</button>
+        <progress id="prog" value="0" max="100" hidden></progress>
+        <p id="upMsg" class="msg"></p>
+      </section>
+
+      <section class="card">
+        <h2>Meus PDFs</h2>
+        <p class="hint">Para apagar um PDF, use o botão ao lado dele.</p>
+        <div id="docs" class="list" style="margin-top:0;border:0"><p class="empty">Carregando...</p></div>
+      </section>
+    </div>
   </main>
 </div>
+<div id="toast"></div>
 
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
@@ -118,89 +165,179 @@ const firebaseConfig = {
   messagingSenderId: "252335527126",
   appId: "1:252335527126:web:5e021984127562d79ca577"
 };
-// Mesma lista das regras (firestore.rules / storage.rules)
+// Mesma lista das regras (firestore.rules)
 const ADMINS = ["zarthur063@gmail.com", "caminhosdallua@gmail.com"];
 
 const app = initializeApp(firebaseConfig);
 const auth = getAuth(app), db = getFirestore(app);
 const $ = id => document.getElementById(id);
-const setMsg = (id, t, good) => { const e = $(id); e.textContent = t || ""; e.className = good ? "ok" : "err"; };
 const EMAIL_RE = /^[^@\s,;]+@[^@\s,;]+\.[^@\s,;]+$/;
 
+let toastT;
+function toast(t, bad) {
+  const e = $("toast"); e.textContent = t; e.className = "show" + (bad ? " bad" : "");
+  clearTimeout(toastT); toastT = setTimeout(() => e.className = "", 3200);
+}
+
+// ---------- Login ----------
 $("btnLogin").onclick = () => signInWithPopup(auth, new GoogleAuthProvider())
-  .catch(e => { if (!String(e.code).includes("popup")) setMsg("msg", "Erro no login: " + e.code); });
+  .catch(e => { if (!String(e.code).includes("popup")) $("msg").textContent = "Não foi possível entrar."; });
 $("btnOut").onclick = () => signOut(auth);
 
 onAuthStateChanged(auth, async user => {
   if (!user) { $("app").hidden = true; $("login").hidden = false; return; }
   const email = (user.email || "").toLowerCase();
   if (!user.emailVerified || !ADMINS.includes(email)) {
-    await signOut(auth);
-    setMsg("msg", "Este e-mail não é administrador.");
-    return;
+    await signOut(auth); $("msg").textContent = "Este e-mail não é administrador."; return;
   }
-  setMsg("msg", "");
-  $("login").hidden = true; $("app").hidden = false;
+  $("msg").textContent = ""; $("login").hidden = true; $("app").hidden = false;
   $("who").textContent = email;
-  loadEmails(); loadDocs();
+  bumpIdle(); loadEmails(); loadDocs();
 });
 
-// ================= ACESSOS =================
-let allEmails = [];
+// Sai sozinho após 60 min sem uso
+let idleT;
+const bumpIdle = () => { clearTimeout(idleT); idleT = setTimeout(() => signOut(auth), 60 * 60 * 1000); };
+["pointerdown", "keydown", "scroll"].forEach(ev => addEventListener(ev, bumpIdle, { passive: true }));
+
+// ---------- Abas ----------
+document.querySelectorAll(".tab").forEach(b => b.onclick = () => {
+  document.querySelectorAll(".tab").forEach(x => x.classList.toggle("on", x === b));
+  $("tab-people").style.display = b.dataset.tab === "people" ? "grid" : "none";
+  $("tab-pdfs").style.display = b.dataset.tab === "pdfs" ? "grid" : "none";
+});
+
+// =====================================================================
+//  ALUNAS
+// =====================================================================
+let allEmails = [], chips = [];
+const selected = new Set();
 
 async function loadEmails() {
   const snap = await getDocs(collection(db, "allowed"));
   allEmails = snap.docs.map(d => d.id).sort();
+  [...selected].forEach(e => { if (!allEmails.includes(e)) selected.delete(e); });
   drawEmails();
 }
 
+// --- chips (campo de adicionar) ---
+function drawChips() {
+  const box = $("chipbox");
+  box.querySelectorAll(".chip").forEach(c => c.remove());
+  chips.forEach(e => {
+    const c = document.createElement("span"); c.className = "chip";
+    const t = document.createElement("span"); t.textContent = e;
+    const x = document.createElement("button"); x.type = "button"; x.textContent = "×"; x.setAttribute("aria-label", "Remover da lista");
+    x.onclick = () => { chips = chips.filter(y => y !== e); drawChips(); };
+    c.append(t, x); box.insertBefore(c, $("emailIn"));
+  });
+  $("btnAdd").disabled = !chips.length;
+  $("btnAdd").textContent = chips.length > 1 ? `Liberar ${chips.length} acessos` : "Liberar acesso";
+}
+function addTokens(text) {
+  const tokens = text.toLowerCase().split(/[\s,;]+/).filter(Boolean);
+  let bad = null;
+  tokens.forEach(t => { if (!EMAIL_RE.test(t)) bad = bad || t; else if (!chips.includes(t)) chips.push(t); });
+  drawChips();
+  if (bad) toast("E-mail inválido: " + bad, true);
+}
+$("emailIn").addEventListener("keydown", e => {
+  if (["Enter", ",", ";", " "].includes(e.key)) { e.preventDefault(); addTokens($("emailIn").value); $("emailIn").value = ""; }
+  if (e.key === "Backspace" && !$("emailIn").value && chips.length) { chips.pop(); drawChips(); }
+});
+$("emailIn").addEventListener("paste", () => setTimeout(() => { addTokens($("emailIn").value); $("emailIn").value = ""; }, 0));
+$("emailIn").addEventListener("blur", () => { if ($("emailIn").value.trim()) { addTokens($("emailIn").value); $("emailIn").value = ""; } });
+$("chipbox").addEventListener("click", () => $("emailIn").focus());
+
+$("btnAdd").onclick = async () => {
+  if ($("emailIn").value.trim()) { addTokens($("emailIn").value); $("emailIn").value = ""; }
+  const novos = chips.filter(e => !allEmails.includes(e));
+  const ja = chips.length - novos.length;
+  if (!novos.length) { toast("Essas pessoas já têm acesso."); chips = []; drawChips(); return; }
+  $("btnAdd").disabled = true;
+  try {
+    for (let i = 0; i < novos.length; i += 400) {
+      const batch = writeBatch(db);
+      novos.slice(i, i + 400).forEach(e => batch.set(doc(db, "allowed", e), { addedAt: serverTimestamp() }));
+      await batch.commit();
+    }
+    chips = []; drawChips();
+    toast(`✔ ${novos.length} acesso(s) liberado(s)` + (ja ? ` · ${ja} já tinha(m)` : ""));
+    await loadEmails();
+  } catch (e) { console.error(e); toast("Não foi possível salvar.", true); drawChips(); }
+};
+
+// --- lista de quem tem acesso ---
 function drawEmails() {
   const q = $("filter").value.trim().toLowerCase();
   const items = allEmails.filter(e => e.includes(q));
   $("count").textContent = allEmails.length + (allEmails.length === 1 ? " pessoa" : " pessoas");
   const box = $("emails"); box.innerHTML = "";
-  if (!items.length) { box.textContent = allEmails.length ? "Nenhum resultado." : "Ninguém liberado ainda."; return; }
+  if (!items.length) { box.innerHTML = '<p class="empty"></p>'; box.firstChild.textContent = allEmails.length ? "Nenhum resultado." : "Ninguém liberado ainda."; }
   items.forEach(e => {
     const row = document.createElement("div"); row.className = "row";
-    const sp = document.createElement("span"); sp.textContent = e;
-    const b = document.createElement("button"); b.className = "btn del"; b.textContent = "Remover";
-    b.onclick = async () => {
-      if (!confirm("Remover o acesso de " + e + "?")) return;
-      await deleteDoc(doc(db, "allowed", e));
-      allEmails = allEmails.filter(x => x !== e); drawEmails();
-    };
-    row.append(sp, b); box.appendChild(row);
+    const cb = document.createElement("input"); cb.type = "checkbox"; cb.checked = selected.has(e);
+    cb.onchange = () => { cb.checked ? selected.add(e) : selected.delete(e); drawSel(); };
+    const av = document.createElement("span"); av.className = "av"; av.textContent = e[0].toUpperCase();
+    const tx = document.createElement("span"); tx.className = "tx"; tx.textContent = e;
+    const b = document.createElement("button"); b.className = "btn sm red"; b.textContent = "Remover";
+    b.onclick = () => removeEmails([e]);
+    row.append(cb, av, tx, b); box.appendChild(row);
   });
+  $("selAll").checked = items.length > 0 && items.every(e => selected.has(e));
+  drawSel();
+}
+function drawSel() {
+  $("selbar").hidden = selected.size === 0;
+  $("selTxt").textContent = selected.size + (selected.size === 1 ? " selecionada" : " selecionadas");
 }
 $("filter").oninput = drawEmails;
+$("selAll").onchange = () => {
+  const q = $("filter").value.trim().toLowerCase();
+  allEmails.filter(e => e.includes(q)).forEach(e => $("selAll").checked ? selected.add(e) : selected.delete(e));
+  drawEmails();
+};
+$("btnNone").onclick = () => { selected.clear(); drawEmails(); };
+$("btnDelSel").onclick = () => removeEmails([...selected]);
 
-$("btnAdd").onclick = async () => {
-  const list = [...new Set($("newEmails").value.toLowerCase().split(/[\s,;]+/).filter(Boolean))];
-  if (!list.length) return setMsg("addMsg", "Digite pelo menos um e-mail.");
-  const bad = list.filter(e => !EMAIL_RE.test(e));
-  if (bad.length) return setMsg("addMsg", "E-mail inválido: " + bad[0]);
-  $("btnAdd").disabled = true;
+async function removeEmails(list) {
+  if (!list.length) return;
+  const msg = list.length === 1 ? `Remover o acesso de ${list[0]}?` : `Remover o acesso de ${list.length} pessoas?`;
+  if (!confirm(msg)) return;
   try {
     for (let i = 0; i < list.length; i += 400) {
       const batch = writeBatch(db);
-      list.slice(i, i + 400).forEach(e => batch.set(doc(db, "allowed", e), { addedAt: serverTimestamp() }));
+      list.slice(i, i + 400).forEach(e => batch.delete(doc(db, "allowed", e)));
       await batch.commit();
     }
-    $("newEmails").value = "";
-    setMsg("addMsg", `✔ ${list.length} acesso(s) liberado(s).`, true);
+    list.forEach(e => selected.delete(e));
+    toast("Acesso removido.");
     await loadEmails();
-  } catch (e) { setMsg("addMsg", "Erro ao salvar: " + e.code); }
-  $("btnAdd").disabled = false;
-};
+  } catch (e) { console.error(e); toast("Não foi possível remover.", true); }
+}
 
-// ================= CONTEÚDOS (PDF salvo em pedaços no Firestore) =================
-const MAX_MB = 100;          // limite por arquivo
-const CHUNK = 800000;        // bytes por pedaço (Firestore aceita < 1 MiB por documento)
-const PER_BATCH = 8;         // pedaços por gravação
-const FREE_MB = 1000;        // ~1 GiB gratuitos no plano Spark
+// =====================================================================
+//  PDFs (salvos em pedaços no Firestore)
+// =====================================================================
+const MAX_MB = 100, CHUNK = 800000, PER_BATCH = 8, FREE_MB = 1000;
 const chunkId = i => String(i).padStart(6, "0");
 const fmtMB = b => (b / 1048576).toFixed(1) + " MB";
 let usedBytes = 0;
+
+function pickFile(f) {
+  if (!f) return;
+  const dt = new DataTransfer(); dt.items.add(f); $("file").files = dt.files;
+  $("dropName").textContent = f.name;
+  $("dropSub").textContent = fmtMB(f.size);
+  if (!$("title").value.trim()) $("title").value = f.name.replace(/\.pdf$/i, "").replace(/[_-]+/g, " ").trim().slice(0, 60);
+}
+$("file").onchange = () => pickFile($("file").files[0]);
+const drop = $("drop");
+["dragenter", "dragover"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.add("over"); }));
+["dragleave", "drop"].forEach(ev => drop.addEventListener(ev, e => { e.preventDefault(); drop.classList.remove("over"); }));
+drop.addEventListener("drop", e => pickFile(e.dataTransfer.files[0]));
+
+const upMsg = (t, k) => { const e = $("upMsg"); e.textContent = t || ""; e.className = "msg " + (k || ""); };
 
 async function deleteChunks(id, count) {
   for (let i = 0; i < count; i += 400) {
@@ -212,64 +349,58 @@ async function deleteChunks(id, count) {
 
 $("btnUp").onclick = async () => {
   const file = $("file").files[0], title = $("title").value.trim();
-  if (!title) return setMsg("upMsg", "Informe um título.");
-  if (!file || file.type !== "application/pdf") return setMsg("upMsg", "Selecione um arquivo PDF.");
-  if (file.size > MAX_MB * 1048576) return setMsg("upMsg", `Tamanho máximo: ${MAX_MB} MB.`);
-  if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95)
-    if (!confirm("Isto passa perto do limite gratuito de ~1 GB de armazenamento. Enviar mesmo assim?")) return;
+  if (!file || file.type !== "application/pdf") return upMsg("Escolha um arquivo PDF.", "err");
+  if (!title) return upMsg("Informe um título.", "err");
+  if (file.size > MAX_MB * 1048576) return upMsg(`Tamanho máximo: ${MAX_MB} MB.`, "err");
+  if ((usedBytes + file.size) / 1048576 > FREE_MB * 0.95 &&
+      !confirm("Isto chega perto do limite gratuito de ~1 GB de armazenamento. Enviar mesmo assim?")) return;
 
   const parent = doc(collection(db, "documents"));
   const total = Math.ceil(file.size / CHUNK);
   let written = 0;
-  $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true;
-  setMsg("upMsg", "Enviando... 0%", true);
+  $("prog").hidden = false; $("prog").value = 0; $("btnUp").disabled = true; upMsg("Enviando... 0%");
   try {
     for (let i = 0; i < total; i += PER_BATCH) {
-      const batch = writeBatch(db);
-      const end = Math.min(i + PER_BATCH, total);
+      const batch = writeBatch(db), end = Math.min(i + PER_BATCH, total);
       for (let j = i; j < end; j++) {
         const buf = new Uint8Array(await file.slice(j * CHUNK, (j + 1) * CHUNK).arrayBuffer());
         batch.set(doc(db, "documents", parent.id, "chunks", chunkId(j)), { n: j, data: Bytes.fromUint8Array(buf) });
       }
       await batch.commit();
       written = end;
-      const pc = (written / total) * 100;
-      $("prog").value = pc; setMsg("upMsg", "Enviando... " + Math.round(pc) + "%", true);
+      const pc = (written / total) * 100; $("prog").value = pc; upMsg("Enviando... " + Math.round(pc) + "%");
     }
-    // só publica o conteúdo quando todos os pedaços foram salvos
-    await setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() });
-    setMsg("upMsg", "✔ PDF salvo na nuvem!", true);
-    $("title").value = ""; $("file").value = "";
+    await setDoc(parent, { title, size: file.size, chunks: total, createdAt: serverTimestamp() });  // só publica no fim
+    upMsg("✔ PDF salvo na nuvem!", "ok");
+    $("title").value = ""; $("file").value = ""; $("dropName").textContent = "Toque para escolher o PDF"; $("dropSub").textContent = "ou arraste o arquivo para cá";
     loadDocs();
   } catch (e) {
     console.error(e);
-    setMsg("upMsg", "Erro no envio (" + (e.code || e.message) + "). Limpando o que foi enviado...");
+    upMsg("Erro no envio. Limpando o que foi enviado...", "err");
     await deleteChunks(parent.id, Math.min(written + PER_BATCH, total)).catch(() => {});
-    setMsg("upMsg", "Erro no envio (" + (e.code || e.message) + "). Tente novamente.");
+    upMsg("Erro no envio (" + (e.code || e.message) + "). Tente de novo.", "err");
   }
   $("btnUp").disabled = false; $("prog").hidden = true;
 };
 
 async function loadDocs() {
   const snap = await getDocs(query(collection(db, "documents"), orderBy("createdAt", "asc")));
-  const box = $("docs"); box.innerHTML = "";
-  usedBytes = 0;
+  const box = $("docs"); box.innerHTML = ""; usedBytes = 0;
   snap.forEach(d => usedBytes += d.data().size || 0);
-  $("usage").textContent = `Espaço usado: ${fmtMB(usedBytes)} de ~${FREE_MB} MB do plano gratuito.`;
-  if (snap.empty) { box.textContent = "Nenhum conteúdo ainda."; return; }
+  if (snap.empty) { box.innerHTML = '<p class="empty">Nenhum PDF enviado ainda.</p>'; return; }
   snap.forEach(d => {
     const { title, size, chunks } = d.data();
     const row = document.createElement("div"); row.className = "row";
-    const sp = document.createElement("span"); sp.textContent = `${title} (${fmtMB(size || 0)})`;
-    const b = document.createElement("button"); b.className = "btn del"; b.textContent = "Excluir";
+    const tx = document.createElement("span"); tx.className = "tx"; tx.textContent = `${title} · ${fmtMB(size || 0)}`;
+    const b = document.createElement("button"); b.className = "btn sm red"; b.textContent = "Apagar";
     b.onclick = async () => {
-      if (!confirm(`Excluir "${title}" definitivamente?`)) return;
+      if (!confirm(`Apagar "${title}" definitivamente? As alunas deixam de ver.`)) return;
       b.disabled = true;
-      await deleteDoc(doc(db, "documents", d.id));     // some da lista das alunas
-      await deleteChunks(d.id, chunks || 0);
+      try { await deleteDoc(doc(db, "documents", d.id)); await deleteChunks(d.id, chunks || 0); toast("PDF apagado."); }
+      catch (e) { console.error(e); toast("Não foi possível apagar.", true); }
       loadDocs();
     };
-    row.append(sp, b); box.appendChild(row);
+    row.append(tx, b); box.appendChild(row);
   });
 }
 </script>

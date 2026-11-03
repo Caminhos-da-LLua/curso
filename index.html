@@ -121,9 +121,6 @@
          padding:22px max(12px,env(safe-area-inset-right)) calc(84px + env(safe-area-inset-bottom)) max(12px,env(safe-area-inset-left))}
   .page{position:relative;width:100%;max-width:900px;border-radius:4px;overflow:hidden;box-shadow:0 8px 30px rgba(0,0,0,.6);background:#fff}
   canvas{display:block;width:100%;height:auto;background:#fff;pointer-events:none}
-  .wm{position:absolute;inset:-30%;display:flex;flex-wrap:wrap;align-content:space-around;justify-content:space-around;
-      pointer-events:none;opacity:.12;color:#000;font:700 18px sans-serif;transform:rotate(-25deg)}
-  .wm span{padding:30px}
   .pageind{position:fixed;left:50%;bottom:calc(18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:6;pointer-events:none;
            padding:8px 18px;border-radius:999px;background:rgba(18,11,36,.88);border:1px solid var(--gold-line);backdrop-filter:blur(8px);
            font:600 13px var(--title);letter-spacing:.12em;color:var(--gold-soft);font-variant-numeric:tabular-nums}
@@ -459,9 +456,6 @@ async function render(email, meta) {
   for (let n = 1; n <= pdf.numPages; n++) {
     const w = document.createElement("div"); w.className = "page"; w._n = n;
     w.style.aspectRatio = v0.width + " / " + v0.height;
-    const wm = document.createElement("div"); wm.className = "wm";
-    for (let i = 0; i < 40; i++) { const sp = document.createElement("span"); sp.textContent = email; wm.appendChild(sp); }
-    w.appendChild(wm);
     box.appendChild(w);
     currentIO.observe(w);
   }

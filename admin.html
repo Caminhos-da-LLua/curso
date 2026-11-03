@@ -6,13 +6,16 @@
 <meta name="color-scheme" content="light dark">
 <meta name="robots" content="noindex, nofollow">
 <title>Admin · Caminhos da Lua</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
   :root{
     --bg:#f5f6f8; --card:#ffffff; --line:#e4e6eb; --ink:#1c2030; --mute:#667085;
     --accent:#5b3fd1; --accent-h:#4a31b3; --accent-soft:#efeafd;
     --danger:#d6334f; --danger-soft:#fdecef; --ok:#16794a;
-    --shadow:0 1px 2px rgba(16,24,40,.05),0 1px 3px rgba(16,24,40,.06);
-    --font:system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
+    --shadow:0 1px 2px rgba(16,24,40,.04),0 4px 14px rgba(16,24,40,.05);
+    --font:"Inter",system-ui,-apple-system,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif;
   }
   @media (prefers-color-scheme:dark){
     :root{ --bg:#14161d; --card:#1c1f29; --line:#2c303c; --ink:#eceef4; --mute:#9aa1b2;
@@ -21,10 +24,10 @@
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   [hidden]{display:none!important}
-  body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:16px/1.5 var(--font);
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font:15px/1.55 var(--font);-webkit-font-smoothing:antialiased;font-feature-settings:"cv11","ss01";
        padding:env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)}
-  h1,h2{margin:0;font-weight:650;letter-spacing:-.01em}
-  h1{font-size:24px} h2{font-size:17px}
+  h1,h2{margin:0;font-weight:650;letter-spacing:-.015em}
+  h1{font-size:24px} h2{font-size:16px}
   .muted{color:var(--mute)}
 
   /* ---------- Login ---------- */
@@ -49,9 +52,9 @@
 
   main{max-width:760px;margin:0 auto;padding:22px 20px 90px}
   .stack{display:grid;gap:18px}
-  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:var(--shadow)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:22px;box-shadow:var(--shadow)}
   .card-h{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px}
-  .card p.sub{margin:0 0 16px;color:var(--mute);font-size:14.5px}
+  .card p.sub{margin:0 0 18px;color:var(--mute);font-size:14px}
   .badge{background:var(--accent-soft);color:var(--accent);font-size:13px;font-weight:600;padding:3px 10px;border-radius:999px}
 
   /* ---------- Campos e botões ---------- */
@@ -61,13 +64,14 @@
   input::placeholder{color:#98a2b3}
   input:focus,.chipbox:focus-within,.drop:focus-within{outline:2px solid var(--accent);outline-offset:0;border-color:transparent}
   .btn{appearance:none;display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:10px 18px;border-radius:10px;border:1px solid var(--line);
-       background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:15px;cursor:pointer;transition:background .15s,border-color .15s}
+       background:var(--card);color:var(--ink);font:inherit;font-weight:600;font-size:14.5px;cursor:pointer;transition:background .15s,border-color .15s,transform .1s}
+  .btn:active{transform:scale(.98)}
   .btn:hover{background:var(--bg)}
   .btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
   .btn.primary:hover{background:var(--accent-h)}
   .btn.red{color:var(--danger);border-color:transparent;background:transparent}
   .btn.red:hover{background:var(--danger-soft)}
-  .btn.sm{padding:6px 12px;font-size:14px;border-radius:8px}
+  .btn.sm{padding:6px 12px;font-size:13.5px;border-radius:8px}
   .btn:disabled{opacity:.5;cursor:not-allowed}
   .full{width:100%}
 
@@ -88,7 +92,7 @@
   .list{max-height:480px;overflow:auto;border-top:1px solid var(--line)}
   .row{display:flex;align-items:center;gap:12px;padding:10px 2px;border-bottom:1px solid var(--line)}
   .row:last-child{border-bottom:0}
-  .av{width:34px;height:34px;border-radius:50%;background:var(--accent-soft);color:var(--accent);display:grid;place-items:center;font-weight:650;font-size:14px;flex:none}
+  .av{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,var(--accent-soft),var(--line));color:var(--accent);display:grid;place-items:center;font-weight:650;font-size:14px;flex:none}
   .tx{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .empty{color:var(--mute);text-align:center;padding:26px 8px;margin:0}
 
@@ -99,7 +103,7 @@
   .drop b{color:var(--ink);font-weight:600;word-break:break-all}
   .field{margin-bottom:16px}
   progress{width:100%;height:8px;margin-top:14px;accent-color:var(--accent)}
-  .msg{min-height:20px;margin:12px 0 0;font-size:14.5px;color:var(--mute)}.msg.err{color:var(--danger)}.msg.ok{color:var(--ok)}
+  .msg{min-height:20px;margin:12px 0 0;font-size:14px;color:var(--mute)}.msg.err{color:var(--danger)}.msg.ok{color:var(--ok)}
 
   #toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom));transform:translate(-50%,16px);opacity:0;pointer-events:none;
          background:#1c2030;color:#fff;padding:11px 18px;border-radius:10px;font-size:15px;transition:.25s;z-index:20;max-width:90vw;box-shadow:0 8px 24px rgba(0,0,0,.25)}
